@@ -1,0 +1,30 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+Example: Type any R code in the chunk, for example:
+```{r}
+mycars <- within(mtcars, { cyl <- ordered(cyl) })
+mycars
+```
+
+There are vectors and matrices that can be used, but they require to have only one data type.
+Thus, the preferred object to use in data science is a data frame as it allows the use of multiple data types on the same object.
+
+HELP can be found by:
+??: provides the closes command based on the keyword
+?: provides the documentation of a given command
+
+= vs <-
+=: preferable for names arguments
+<-: preferred for assigning an object to a va riable
+
+Slicing example
+```{r}
+x <- rnorm(10)
+x[0]
+```
+Note: R does not support 0 index. In other words, their index starts at 1
+In a dataframe, it is possible to select a colum by: df$v1
+
