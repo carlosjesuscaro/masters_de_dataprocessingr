@@ -38,3 +38,11 @@ x
 x[1:3]
 x[2]
 
+
+my_list <- list(
+  first_name = "Carlos",
+  last_name = "Smith",
+  age = 30
+)
+# Access the 'age' element using the $ operator
+print(my_list[["age"]])

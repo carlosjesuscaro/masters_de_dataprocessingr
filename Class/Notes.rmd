@@ -28,3 +28,15 @@ x[0]
 Note: R does not support 0 index. In other words, their index starts at 1
 In a dataframe, it is possible to select a colum by: df$v1
 
+An R list is like a Python dictionary and a Python list is a vector in R
+```{r}
+my_list <- list(
+  first_name = "Carlos",
+  last_name = "Smith",
+  age = 30
+)
+# Access the 'age' element using the $ operator
+print(my_list[["age"]])
+```
+
+Saving data in the R format would allow saving several objects in the same file. Plus an R file is compressed
