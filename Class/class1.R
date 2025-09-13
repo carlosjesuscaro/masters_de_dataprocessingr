@@ -46,3 +46,4 @@ my_list <- list(
 )
 # Access the 'age' element using the $ operator
 print(my_list[["age"]])
+

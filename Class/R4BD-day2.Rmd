@@ -1,0 +1,627 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+> Exercise (from day #1):
+
+- Clean your environment and create a data frame named `D` with 50 individuals, 4 continuous variables and add a few missing values on the last two variables.
+
+```{r}
+rm(list=ls())
+D = data.frame(v1 = rnorm(50),
+               v2 = runif(50),
+               v3 = rnorm(50),
+               v4 = rpois(50,3))
+sel = sample(50,10)
+D$v3[sel] = NA
+sel = sample(50,20)
+D$v4[sel] = NA
+D
+```
+
+- save this data frame on your hard disk as a CSV file
+
+```{r}
+setwd("~/Travail/enseignement/2024-2025/S2-R4BD")
+write.csv(D,file='D.csv')
+```
+
+- reload the data from the file under a new name (`Z` for instance)
+
+```{r}
+Z = read.csv(file='D.csv',row.names = 1)
+```
+
+- write a small code allowing for each variable to replace the missing values by the mean of the variable.
+
+```{r}
+sum(is.na(Z))
+for (i in 1:ncol(Z)){
+  # Selecting the indiv. that have NAs for this var. 
+  sel = is.na(Z[,i])
+  # Replacing the NAs with the mean of the non missing val.
+  Z[sel,i] = mean(Z[,i],na.rm = TRUE)
+}
+sum(is.na(Z))
+Z
+```
+
+# The R graphical system
+
+As we saw yesterday, the graphical system of R is extremely advanced and can customized in details with many options of the `plot` function. Each plot will usually start with a call to the `plot` function, and it will be possible to add additional graphical layers on it afterward.
+
+## Basics of plots and legends
+
+A basic usage of the `plot` function may be as follows:
+
+```{r}
+x = seq(-2*pi,2*pi,length.out=50)
+y = sin(x)
+plot(x,y)
+```
+
+It could be interesting to plot a straight line instead of data points since we would like to plot a continuous function:
+
+```{r}
+plot(x,y,type='l')
+```
+Thanks to the option `type`, we can draw this kind of plots:
+
+- `type="b"` for both points and lines
+
+```{r}
+plot(x,y,type='b')
+```
+- `type="c"` for both points and lines apart
+
+```{r}
+plot(x,y,type='c')
+```
+- `type="o"` for both points and lines overplotted
+
+```{r}
+plot(x,y,type='o')
+```
+- `type="h"` for a histogram-like plot
+
+```{r}
+plot(x,y,type='h')
+```
+
+- `type="s"` for stair steps
+
+```{r}
+x = seq(-2*pi,2*pi,length.out=100)
+y = sin(x)
+plot(x,y,type='s')
+```
+- `type="n"` for no plotting
+
+```{r}
+plot(x,y,type='n')
+```
+This option is in fact more useful than we can expect. Indeed, it will allow to set up correctly the graphical boundaries when plotting many lines / points.
+
+A practical example would be this one:
+
+```{r}
+x = seq(-2*pi,2*pi,length.out=100)
+y = sin(x)
+z = cos(x-1) + 1
+plot(x,y,type='l',col='red')
+lines(x,z,col='blue')
+```
+The solution here is to first set up the graphical limits of the plot using all data, and then to plot the two lines separately:
+
+```{r}
+x = seq(-2*pi,2*pi,length.out=100)
+y = sin(x)
+z = cos(x-1) + 1
+plot(c(x,x),c(y,z),type='n')
+lines(x,y,col='red')
+lines(x,z,col='blue')
+```
+> Remark: the `lines` function allows to add a new line to an existing plot.
+
+> Remark: the `points` function allows to add a new points to an existing plot.
+
+To continue improving this figure, we can of course play we the multiple options of the different functions.
+
+```{r}
+plot(c(x,x),c(y,z),type='n',xlab="x",ylab="f(x)",
+     main = "Some functions of x")
+lines(x,y,col='red',lty=1)
+lines(x,z,col='blue',lty=2)
+```
+
+An alternative to this plot is as follows (because in this case we can calculate the range for `y` and `z` in advance):
+
+```{r}
+plot(x,y,type='l',col='red',ylim = c(-1,2),
+     xlab="x",ylab="f(x)",
+     main = "Some functions of x")
+lines(x,z,col='blue',lty=2)
+```
+It is naturally possible to play with the x and y limits to zoom on the plot:
+
+```{r}
+plot(x,y,type='l',col='red',
+     xlim = c(0,4), ylim = c(0,2),
+     xlab="x",ylab="f(x)",
+     main = "Some functions of x")
+lines(x,z,col='blue',lty=2)
+```
+To add a legend on a plot, we have to use the `legend` function:
+
+```{r}
+plot(x,y,type='l',col='red',
+     xlim = c(0,4), ylim = c(0,2),
+     xlab="x",ylab="f(x)",
+     main = "Some functions of x")
+lines(x,z,col='blue',lty=2)
+legend("topright",
+       legend=c("sin(x)","cos(x-1)+1"),
+       col = c('red','blue'),
+       lty = 1:2)
+```
+
+> Exercise: modify the previous plot to ass a third function $h(x) = tan(x) - 1$
+
+
+```{r}
+x = seq(-2*pi,2*pi,length.out=100)
+y = sin(x)
+z = cos(x-1) + 1
+h = tan(x) - 1
+plot(c(x,x,x),c(y,z,h),type='n',
+     xlim = c(0,4), xlab="x",ylab="f(x)",
+     main = "Some functions of x")
+lines(x,y,col='red',lty=1,lwd=2)
+lines(x,z,col='blue',lty=2,lwd=2)
+lines(x,h,col='green',lty=3,lwd=2)
+legend("bottomleft",
+       legend=c("sin(x)","cos(x-1)+1","tan(x)-1"),
+       col = c('red','blue',"green"),
+       lty = 1:3)
+```
+
+It is also possible to provide the exact desired position for the legend:
+
+```{r}
+plot(x,y,type='l',col='red',
+     xlim = c(0,4), ylim = c(0,2),
+     xlab="x",ylab="f(x)",
+     main = "Some functions of x")
+lines(x,z,col='blue',lty=2)
+legend(3,1.9,
+       legend=c("sin(x)","cos(x-1)+1"),
+       col = c('red','blue'),
+       lty = 1:2)
+```
+
+There is another graphical function that can be useful when you would like to display for instance the names of the individuals on a figure: the `text` function
+
+```{r}
+X = data.frame(x = runif(10),y = runif(10))
+rownames(X) = paste("Ind.",1:10)
+plot(X,type='p',pch=19,col='red')
+text(X,labels = rownames(X),pos = 1,col='blue',cex=0.8)
+```
+In many situations of Data Science and Statistics, the `abline` function turns out to be extremely useful: this function allows to draw straight lines on an existing plot.
+
+A basic usage of it would be as follows:
+
+```{r}
+plot(0,0,type='n',xlim=c(0,100),ylim=c(0,100))
+abline(h = 75,col='red',lty=2)
+abline(h = 25,col='red',lty=2)
+abline(v = 25,col='green',lty=2)
+abline(a = 20,b = 1,col='blue',lty=3)
+```
+
+A practical use in Statistics of the function is for drawing the regression line behind the data:
+
+```{r}
+N = 50
+x = runif(N,0,100)
+noise = rnorm(N,0,15)
+y = 1.8 * x + 28 + noise 
+plot(x,y,type='p')
+```
+
+Thanks to the linear model (lm), it is possible to recover the parameters of the relationship between x and y from the observed data.
+
+```{r}
+out = lm(y ~ x)
+out
+```
+
+Here, we can use the `abline` function to plot the actual and estimated regression line on the data:
+
+```{r}
+N = 100
+x = runif(N,0,100)
+noise = rnorm(N,0,35)
+y = 1.8 * x + 28 + noise 
+plot(x,y,type='p')
+abline(a = 28, b = 1.8, col='blue',lty=2,lwd=2)
+abline(out, col='red',lty=3,lwd=2)
+```
+
+> Exercise: add the appropriate legend on the above plot.
+
+```{r}
+plot(x,y,type='p')
+abline(a = 28, b = 1.8, col='blue',lty=2,lwd=2)
+abline(out, col='red',lty=3,lwd=2)
+legend(70,50,legend=c("Actual model","LM estimation"),
+       col = c("blue","red"),lty=2:3,lwd=2)
+```
+Just for fun: it is also possible to hilight some parts of a plot with the `rect` function:
+
+```{r}
+plot(x,y,type='p')
+abline(a = 28, b = 1.8, col='blue',lty=2,lwd=2)
+abline(out, col='red',lty=3,lwd=2)
+legend(70,50,legend=c("Actual model","LM estimation"),
+       col = c("blue","red"),lty=2:3,lwd=2)
+rect(-10,-70,40,150,col="lightgreen",density=50)
+```
+
+> Exercise: modify the above plot such that the data points and lines are above the green zone.
+
+```{r}
+plot(x,y,type='n')
+rect(-10,-70,40,150,col="lightgreen",density=50)
+points(x,y)
+abline(a = 28, b = 1.8, col='blue',lty=2,lwd=2)
+abline(out, col='red',lty=3,lwd=2)
+legend(70,50,legend=c("Actual model","LM estimation"),
+       col = c("blue","red"),lty=2:3,lwd=2)
+```
+Of course, when the figure is ready to be exported, it is possible to save all figures as images on the hard disk. There are two options for saving the figures:
+
+- use the plot panel and the `Export` button to save it in either PDF, SVG, PNG or JPEG.
+
+- use a R command to directly save the figure from the command line: 
+
+```{r}
+plot(x,y,type='n')
+rect(-10,-70,40,150,col="lightgreen",density=50)
+points(x,y)
+abline(a = 28, b = 1.8, col='blue',lty=2,lwd=2)
+abline(out, col='red',lty=3,lwd=2)
+legend(70,50,legend=c("Actual model","LM estimation"),
+       col = c("blue","red"),lty=2:3,lwd=2)
+dev.copy2pdf(file='myplot.pdf',width=7,height=5)
+```
+
+## Basic statistics with R plots
+
+Histogram is probably the most popular tool for visualizing the density of a (univariate continuous) variable.
+
+```{r}
+x = rnorm(100,0,1)
+hist(x,col='lavender')
+```
+
+> Remark: the choice of the number of bins is sensitive and it is possible to change the form of the histogram by playing with this number.
+
+```{r}
+par(mfrow=c(2,2))
+x = rnorm(100,0,1)
+hist(x,col='lavender')
+hist(x,col='lavender',breaks = 1)
+hist(x,col='lavender',breaks = 10)
+hist(x,col='lavender',breaks = 100)
+```
+> Remark: the `par(mfrow=c(a,b))` will split the plot in several subplot on a rows and b columns.
+
+A way to check if the choice of the number of bins is correct is to compare the resulting histogram with an estimation of the density function (using `density`):
+
+```{r}
+par(mfrow=c(1,2))
+hist(x,col='lavender',breaks = 10)
+plot(density(x),type='l',col='red',lwd=2)
+```
+> Exercise: modify the above code to place the red line above the histogram.
+
+```{r}
+hist(x,col='lavender',breaks = 15,freq = FALSE)
+lines(density(x),type='l',col='red',lwd=2)
+```
+The boxplot can also be used to visualize the distribution of a continuous variable. The function `boxplot` allows to draw it in R. The advantage of the boxplot over the histogram is that it has no parameter to tune.
+
+```{r}
+boxplot(x,col="lavender",horizontal = TRUE)
+```
+
+Interestingly, it is possible to relate the boxplot with the histogram.
+
+```{r}
+layout(matrix(c(1,1,1,1,2,2),nrow=3,byrow=TRUE))
+hist(x,col='lavender',breaks = 15,freq = FALSE)
+lines(density(x),type='l',col='red',lwd=2)
+boxplot(x,col="lavender",horizontal = TRUE)
+```
+Another advantage of the boxplot is the possibility to plot several boxplots side by side for multidimensional data:
+
+```{r}
+data(iris)
+?iris
+```
+
+```{r}
+boxplot(iris[,-5])
+```
+
+> Exercise: create a plot showing the 4 histograms associated with the different variables of the iris data.
+
+```{r}
+par(mfrow=c(2,2))
+for (i in 1:4) hist(iris[,i],col='lavender')
+```
+In the case of multidimensional data, it is also possible to use the `pairs` plot for visualizing the data in the original space:
+
+```{r}
+pairs(iris[,-5],pch=19)
+```
+
+When we also have a extra information as a categorical variable, it is possible to play with the color of the data points to display it:
+
+```{r}
+pairs(iris[,-5],pch=19,col=iris$Species)
+```
+
+For categorical data, we just have the `barplot` and `pie` chart as tools to visualize them:
+
+```{r}
+barplot(summary(iris$Species))
+```
+
+```{r}
+pie(summary(iris$Species))
+```
+
+> Remark: the `summary` function allows to calculate for possible large datasets a series of classical statistics automatically.
+
+```{r}
+summary(iris)
+```
+
+## The ggplot package for advanced graphics
+
+The `ggplot2` package is an extra package for R, provided by the same company that provides Rstudio. The package is certified by the CRAN consortium and it is available for download directly from R. This package aims at providing tools to produce advanced graphics.
+
+To install the package, we have to type the following commands:
+
+- type `install.packages("ggplot2")`
+- and then load the package with `library(ggplot2)`
+
+```{r}
+#install.packages("ggplot2")
+library(ggplot2)
+```
+
+In order to illustrate the different possibilities offered by the package, let's consider the `mpg` data set that is already existing in the R environment.
+
+```{r}
+data(mpg)
+?mpg
+```
+
+In order to have a first contact with both the data and the ggplot functions, let's start by doing a histogram of the gas consumption on highways (the `hwy` variable):
+
+```{r}
+ggplot(data = mpg) + geom_histogram(aes(x = hwy))
+```
+
+> Remark: the histogram of ggplot always uses 30 bins. This may changed depending on the data. It is clearly the responsability of the user in this case.
+
+The number bins (and other parameters) can be changed within the call:
+
+```{r}
+ggplot(data = mpg) + geom_histogram(aes(x = hwy),
+                                    bins = 15, fill = "pink")
+```
+
+At this point, we understand the way `ggplot` functions work:
+
+```{r eval=FALSE}
+ggplot(data = name_of_dataset) +
+  geom_firs_function(???) +
+  geom_second_function(???) 
+```
+
+The different layers are added to the figure using the `+` operator.
+
+> Exercise: use the `geom_density` function to add to the previous plot the estimation of the density line.
+
+```{r}
+ggplot(data = mpg) + 
+  geom_histogram(aes(x = hwy,after_stat(density)),
+                 bins = 12, fill = "pink") +
+  geom_density(aes(x = hwy),col='red') +
+  theme_light()
+```
+It is also possible to draw boxplots:
+
+```{r}
+ggplot(data = mpg) + 
+  geom_boxplot(aes(x='',y=hwy),fill='lavender') +
+  theme_light()
+```
+For categorical data, we have the possibility to draw barplots:
+
+```{r}
+ggplot(data = mpg) + 
+  geom_bar(aes(x = trans,fill=trans)) +
+  theme_light()
+```
+
+A first innovative way of looking at the data that is proposed by ggplot is the stacked barplot:
+
+```{r}
+ggplot(data = mpg) + 
+  geom_bar(aes(x = '',fill=trans)) +
+  theme_light()
+```
+> Exercise: play with the `labs` function to add a title, a subtitle and some additional information on the above figure.
+
+```{r}
+ggplot(data = mpg) + 
+  geom_bar(aes(x = '',fill=trans)) +
+  labs(title = "Share of the engine transmission types",
+       subtitle = "Figure created by CB",
+       caption = "Data from the MPG data set",
+       x = "Transmission types",
+       y = "Count") +
+  theme_light()
+```
+To produce scatter plots, we can use the `geom_point`. Let's here explore the relationship between the gas consumption on highways and cities:
+
+```{r}
+ggplot(data = mpg) +
+  geom_point(aes(x = cty,y = hwy)) +
+  theme_light()
+```
+Looking at the data, it really makes sense to use the linear model to extract the relationship between the two variables.
+
+> Exercise: fit a linera model on this data and use the `geom_abline` function to display it on the plot.
+
+```{r}
+out = lm(hwy ~ cty, data = mpg)
+ggplot(data = mpg) +
+  geom_point(aes(x = cty,y = hwy)) +
+  geom_abline(intercept = out$coefficients[1],
+              slope = out$coefficients[2],col='red') +
+  theme_light()
+```
+
+In the case of scatter plots, it is of course possible to change the color and the form of the data points. For this example, let's focus on the relationship between the engine size (`displ`) and the highway consumption:
+
+```{r}
+ggplot(data = mpg) +
+  geom_point(aes(x = displ,y = hwy,
+                 col = factor(trans),
+                 shape = factor(year))) +
+  theme_light()
+```
+
+> Remark: this figure is a typical example of a plot with too much information, and for which is is at the end difficult to extract a useful information! Avoid varying both the colors and the patch forms!
+
+Among the very interesting features offered by ggplot, the ability to separate the data according to a categorical variable into different plots is a really great feature!
+
+```{r}
+ggplot(data = mpg) +
+  geom_point(aes(x = displ,y = hwy,col = factor(trans))) +
+  facet_wrap(~trans,nrow = 3) +
+  theme_light()
+```
+Just for fun, it would also possible to do the same with basic R but not at the same price:
+
+```{r}
+par(mfrow=c(3,4))
+trans = as.factor(mpg$trans)
+for (i in 1:length(unique(trans))){
+  sel = which(as.numeric(trans) == i)
+  plot(mpg$displ,mpg$hwy,type='n')
+  points(mpg$displ[sel],mpg$hwy[sel], pch=19, col=i)
+}
+```
+In fact, it is even possible to split the data in a scatter plot according to more than one categorical variable:
+
+```{r}
+ggplot(data = mpg) +
+  geom_point(aes(x = displ,y = hwy,col = factor(trans))) +
+  facet_grid(year ~ trans) +
+  theme_light()
+```
+This figure presents the exact same information as the one before, with here a clear possibility to interpret the data. We can in particular see that older cars consumpt less and the most economic ones are `auto(l4)` or `manual`.
+
+With ggplot, it is also possible to add a fit of a model directly on the plot using the `geom_smooth` function:
+
+
+```{r}
+theme_set(theme_light())
+ggplot(data = mpg) +
+  geom_point(aes(x = displ,y = hwy,col = factor(trans))) +
+  geom_smooth(aes(x = displ,y = hwy),
+              method="lm",
+              formula = y ~ x + log(x))
+```
+
+It is in fact possible to combine this smoothing by category using the `facet_wrap`:
+
+```{r}
+ggplot(data = mpg) +
+  geom_point(aes(x = displ,y = hwy,col = factor(drv))) +
+  geom_smooth(aes(x = displ,y = hwy),
+              method="lm",
+              formula = y ~ x + log(x)) +
+  facet_wrap(~ drv,nrow=1)
+```
+
+Coming back now on categorical data, it is also here possible to produce interesting and meaningful plots:
+
+```{r}
+ggplot(data = mpg) +
+  geom_bar(aes(x = factor(cyl),fill=drv))
+```
+This figure allows to see the share of the different drive trains according to the number of cylinders.
+
+```{r}
+ggplot(data = mpg) +
+  geom_bar(aes(x = factor(drv),fill=factor(cyl)))
+```
+Notice that it is possible also to display the bars like this:
+
+```{r}
+ggplot(data = mpg) +
+  geom_bar(aes(x = factor(drv),fill=factor(cyl)),
+           position = "dodge")
+```
+
+And for making pie charts:
+
+```{r}
+ggplot(data = mpg) +
+  geom_bar(aes(x = '',fill=factor(cyl))) +
+  coord_polar(theta = 'y') +
+  facet_wrap(~drv)
+```
+
+> Exercise: use the different functions to study the relationship between the highway consumption and the number of cylinders, according to the type of drive train.
+
+```{r}
+ggplot(data = mpg) +
+  geom_point(aes(x = cyl,y = hwy)) +
+  geom_smooth(aes(x = cyl,y = hwy),
+              method="lm",
+              formula = y ~ x + log(x)) +
+  facet_wrap(~ drv)
+```
+
+Boxplots can also be applied according to several categorical variables:
+
+```{r}
+ggplot(data = mpg) +
+  geom_boxplot(aes(x = factor(cyl),y = hwy)) +
+  facet_wrap(~drv)
+```
+Here, the boxplot on the left depicts the distribution of the gas consumption on highways of cars with 4 cylinders and a 4-wheel drive train.
+
+About the fit of models on the data using `geom_smooth`, this can be also done by groups (depending on a categorical variable):
+
+```{r}
+ggplot(data = mpg) +
+  geom_point(aes(x = displ,y = hwy,col = factor(year))) +
+  geom_smooth(aes(x = displ,y = hwy,
+                  group = factor(year),col=factor(year)),
+              method="lm",formula = y ~ x + log(x))
+```
+
+Since the confidence intervals of the two fits are overlapping, we can't say that older cars have a significant lower consumption. 
+
+

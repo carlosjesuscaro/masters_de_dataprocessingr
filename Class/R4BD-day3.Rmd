@@ -1,0 +1,470 @@
+---
+title: "R4BD-day3"
+author: "CB"
+date: "2025-03-31"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Reporting with R: the Rmarkdown and Shiny systems
+
+In Data Science, the communication of the results is also an important part, in order to support the technical work that you have done. The R community offers you some nice tools to help producing nice technical documents and interactive platforms.
+
+## The Rmarkdown system
+
+A first tool which is extemly useful for producing technical reports is the `Rmarkdown` system. This system is "just" a port of the `markdown` language (which is devoted to the creation of structured documents from a single text file) in the R environment, augmented by some specific features from the R and Python worlds.
+
+Starting a Rmarkdown document in Rstudio is very easy: `File > New file > Rmarkdown document`.
+
+When you do this, a new `Rmd` file is created. This file is just a simple text file with a specific extension. The idea of `markdown` is to focus on the content and not on the form. The presentation of the titles, headers, figures, tables ... will be all managed by the system. In Rmakdown, you indicate to the system the role of what you write using simple commands. For instance:
+
+- `*text*` or `**text**`allow to highligth the words (*italic* and **bold**).
+- `#`, `##` or `###` allow to define the titles of the sections, subsections and subsubsections,
+- `_text_` will _underline the text_
+- `> A note` will start a specific environment for a note,
+- ...
+
+All the commands that are proposed by the Rmarldown environment are documented. The documentation is available directly from Rstudio: `Help > Markdown Quick Reference`.
+
+There is also a book about the Rmarkdown system which is available online: [The Rmarkdown book](https://bookdown.org/yihui/rmarkdown/)
+
+You can also find a cheatsheet card in the website of Rstudio: [cheatsheet card](https://raw.githubusercontent.com/rstudio/cheatsheets/main/rmarkdown.pdf)
+
+Beyond the formatting of the document (title, sections, lists, tables, ...), it is possible to add pieces of R code in the document. When the document is compiled, the code is excuted and the results are added to the document.
+
+The way the code is run and its results are displayed can be customized. There are roughly 4 different situations:
+
+- print the code and add the results (default)
+
+```{r}
+x = 2
+x
+```
+
+If the code produces also a plot, the figure will be automatically inserted in the document.
+
+```{r}
+x = seq(-2*pi,2*pi,length.out=1000)
+plot(x,sin(x),type='l',col="lightblue")
+```
+
+> Important remark: it is possible in a single Rmarkdown document to mix different languages (R, python, bash, D3, C++, ...)
+
+For instance, this a piece of `bash` language:
+
+```{bash}
+df -h
+```
+
+and this a Python code:
+
+```{python}
+import numpy as np
+x = np.linspace(-4, 4, 41)
+x
+```
+
+- to run the code and print only the results, we have to use the option `echo = FALSE`
+
+```{r echo=FALSE}
+x = seq(-2*pi,2*pi,length.out=1000)
+plot(x,cos(x),type='l',col="pink")
+```
+
+This style of display is useful if you want to hide the technical part of the work to the reader.
+
+- to print the code and do not run it (so, no output), you have to use the `eval=FALSE` option.
+
+```{r eval=FALSE}
+A = matrix(0,100000000)
+A
+```
+
+In this case, the code is provided but not executed.
+
+- the last situation considers the case where we would like to execute a code, and do not print neither the code, nor the results. The option for that is `include=FALSE`.
+
+```{r include=FALSE}
+X = data.frame(age = rnorm(50,35,10),
+               salary = rnorm(50,2500,50))
+m_sal = mean(X$salary)
+m_sal
+```
+
+In this case, the code is actually executed but it is not visible in the document. The results of this piece of code can be however used in another code chunk later. For instance:
+
+```{r}
+m_sal
+min(X$age)
+```
+
+In this case, the reader can not see where `m_sal` and `X` have been defined.
+
+Among the other advanced possibilities of Rmarkdown, we can cite the possibility of providing nice tables:
+
+Ind.  | Var. 1 | Var. 2
+------| ---- | ---
+Tyty | 12  | 1.2
+Toto | 2  | 5.6
+
+> Notice that is also possible to directly export nice tables from data frames
+
+```{r}
+knitr::kable(X,caption = "Table with kable")
+```
+
+Another great possibility is the one of writing mathematical equations directly in the document using the LaTeX language. Here is an example: the linear regression model between the variables $X$ and $Y$ is as follows:
+
+$$Y = \beta X + \epsilon$$
+where $\epsilon \sim \mathcal{N}(0,\sigma^2)$.
+
+> Exercise: create a clean Rmarkdown document to produce a short report presenting the analysis of the link between the gas consumption on highways according to the size of the engine, depending on the year of the car.
+
+> Remark: it is possible to allow the user to hide or reveal all codes of the document by replacing in the header `output: html_document` by `output: html_document: code_folding: hide`.
+
+> Remark: it is also possible to run a small piece of code directly in a line of text (mode "inline"). For instance:
+
+The average salary of the clients of the company is `r round(mean(X$salary))` Euros.
+
+## The `shiny` package for interactive webpage
+
+It is sometimes necessary to allow the user / client to interact with your code or work in order to convice them. However, if they don't know R, this may be difficult. The `shiny` package offers you a way to create interactive webpage using JavaScript that will provide a graphical interface to your R code (could be Python as well!) in a dynamic manner. `shiny` offers a way to interact with R without manipulating any line of code. It can be seen as a way to provide a Proof of Concept of some software vesion of your code.
+
+For using `shiny`, we first need to install it:
+
+```{r}
+#install.packages("shiny")
+library(shiny)
+```
+
+An easy way to look at some possibilities offered by `shiny` is to run the demo:
+
+```{r eval=FALSE}
+runExample("01_hello")
+```
+
+This example proposes a graphical interface to modify the parameter `breaks` of the function `hist` of R.
+
+To create your own `shiny` app, we need to create two files in a folder:
+
+- a file named `ui.R`, which will be devoted to describe the graphical user interface,
+- a file named `server.R`, which will be devoted to provide the R code that will interact with the graphical elements of the app.
+
+Let's create two basic files of this kind from a basic R script (`File > New file > R script`): `ui.R` and `server.R`.
+
+> Exercise: from the basic shiny app we designed, add on the histogram an estimation of the density function.
+
+In order to look at all options offered by `shiny`, the best is to follow the tutorial provided on the shiny website: [Shiny website](https://shiny.posit.co/)
+
+> Remark: it is possible to gether the two parts ot the app in a single file `app.R` if we add at the end `shinyApp(ui = ui, server = server)`.
+
+Here are all the widgets we can add to the UI part:
+
+- `actionButton`:	Action Button
+- `checkboxGroupInput`:	A group of check boxes
+- `checkboxInput`:	A single check box
+- `dateInput`:	A calendar to aid date selection
+- `dateRangeInput`:	A pair of calendars for selecting a date range
+- `fileInput`:	A file upload control wizard
+- `helpText`:	Help text that can be added to an input form
+- `numericInput`:	A field to enter numbers
+- `radioButtons`:	A set of radio buttons
+- `selectInput`:	A box with choices to select from
+- `sliderInput`:	A slider bar
+- `submitButton`:	A submit button
+- `textInput`:	A field to enter text
+
+> Exercise: add to the app a text box in the sidebar to provide the name of the author of the code.
+
+> Exercise: add to the app a checkbox to enable or disable the display of the density line.
+
+> Exercise: add the appropriate widgets to allow the user to change the color of the histogram, the width of the density line and the name of the plot.
+
+In order to share a shiny app, there are mainly two ways:
+
+- provide the `app.R` to a colleague who has R installed on its computer and run the app.
+
+- install the app on a web server which can R in back (or use a service such as [https://www.shinyapps.io/](https://www.shinyapps.io/))
+
+A final information: it is possible to incorporate shiny apps within a Rmarkdown document.
+
+```{r, eval = FALSE}
+shinyAppFile("./app.R",
+             options = list(width = "100%", height = 700)
+)
+```
+
+
+# Basics of R programming
+
+## The loops
+
+R is also a programming language. Among the basics, we have of course all loops and test functions:
+
+- the `for` loop:
+
+```{r eval=FALSE}
+for (index in list_of_elements){
+  commands to execute
+  a second comment ...
+}
+```
+
+A simple example:
+
+```{r}
+for (i in 1:10){
+  print(i+1)
+}
+```
+
+Notice that the list of elements can be numeric or not, consecutive or not, ...
+
+```{r}
+for (i in seq(10,1,-2)){
+  print(i+1)
+}
+```
+
+
+```{r}
+for (i in c('a','z','Hello!')){
+  print(i)
+}
+```
+
+> Remark: in the case of a unique command to execute, the braces can be avoided if the command is on the same line as the `for`
+
+```{r}
+for (i in 1:5) print(i)
+```
+
+- the `while` loop
+
+```{r eval=FALSE}
+set up the condition
+which (condition){
+  some commands
+  ...
+  update of the condition
+}
+```
+
+A basic example can be:
+
+```{r}
+k = 0
+test = (k<10)
+while (test){
+  print(k)
+  k = k+1
+  test = (k<10)
+}
+```
+
+- the `switch` function:
+
+```{r eval=FALSE}
+switch (expression,
+  case 1 = action 1,
+  case 2 = action 2,
+  ...
+)
+```
+
+For example:
+
+```{r}
+case = 2
+switch(case,
+       "1" = plot(1:100,sin(1:100),type='l',col="red"),
+       "2" = plot(1:100,cos(1:100),type='l',col="blue"))
+```
+- the `if` function
+
+```{r eval=FALSE}
+if (condition){
+  some action
+} else {
+  some alternative action
+}
+```
+
+For example:
+
+```{r}
+exp = 'cos'
+if (exp == "sin"){
+  plot(1:100,sin(1:100),type='l',col="red")
+} else{
+  plot(1:100,cos(1:100),type='l',col="blue")
+}
+```
+
+> Remark: it is of course possible to add a `if` in the `else`
+
+```{r}
+exp = 'tan'
+if (exp == "sin"){
+  plot(1:100,sin(1:100),type='l',col="red")
+} else if (exp == "cos"){
+  plot(1:100,cos(1:100),type='l',col="blue")
+} else warning("This option does not exist!")
+```
+
+## Defining functions
+
+In some situations, it may be necessary to define a new function. The format to define functions is as follows:
+
+```{r eval=FALSE}
+name_of_function <- function(param1,param2, ...){
+  a first line of code
+  a second line
+  ...
+  return(obtejct_to_return)
+}
+```
+
+Some remarks:
+
+- the object to return should a list if there are more than one element to return
+- some functions do not return anything (they produce a plot for instance).
+
+A basic example:
+
+```{r}
+mysum <- function(a,b){
+  s = a+b
+  return(s)
+}
+```
+
+Once the above lines are executed (sourced), the function is available in the R environment and can be used:
+
+```{r}
+mysum(3,4)
+mysum(10,-5)
+```
+
+Notice that a simple function like this can inherit from advanced elements of R:
+
+```{r}
+mysum(1:5,c(2,6,7,-6,1))
+```
+
+And if we want to return several calculations, we need to use a list as output:
+
+```{r}
+mysums <- function(a,b){
+  s = a+b
+  s2 = a^2 + b^2
+  res = list(s = s,s2 = s2)
+  return(res)
+}
+```
+
+```{r}
+out = mysums(2,5)
+out
+```
+
+It is also possible to set up a default value for the parameters:
+
+```{r}
+mysums <- function(a,b,degree = 2){
+  s = a+b
+  s2 = a^degree + b^degree
+  res = list(s = s,s2 = s2)
+  return(res)
+}
+```
+
+```{r}
+mysums(2,5)
+mysums(2,5,degree = 3)
+```
+
+In R, it is possible to call the function with the parameter in the defined order... or not!
+
+```{r}
+mysums(2,3,2)
+```
+
+
+```{r}
+mysums(degree=2,b=3,a=2)
+```
+
+The `...` operator is a very interesting one allowing to pass parameters to subfunctions of the function:
+
+```{r}
+myplot <- function(x,...){
+  plot(x,sin(x+1),...)
+}
+x = seq(-2*pi,2*pi,0.1)
+myplot(x)
+```
+
+```{r}
+myplot(x,type='l',col='pink')
+```
+
+> Exercise: create a function `myhist` that plots a histogram with the density line as an option.
+
+```{r}
+myhist <- function(x,density = TRUE,...){
+  hist(x,freq = FALSE,...)
+  if (density) lines(density(x),col="red",lty=2,lwd=2)
+}
+
+myhist(rnorm(100))
+```
+
+```{r}
+myhist(rnorm(100),col="lightblue",breaks=25,main="My title!")
+```
+
+## Building of R packages
+
+The optimal way of sharing your code is to create a R package, that can be directly share with other persons or uploaded on the CRAN server. In the latter situation, your package will be available to everyone directly from R thanks to the command `install.packages`. Notice that having a package accepted on the CRAN requires a lot of work to satisfy the "CRAN policies"!
+
+The process for building a package has three steps:
+
+1. clean the environment and load all functions and data you want to have in the package,
+2. use the `package.skeleton` function to actually create the structure of the package,
+3. go in the package directory and complete all documentation pages.
+
+To illustrate this, let's create a minimal package for the `myhist` function:
+
+```{r}
+rm(list=ls())
+myhist <- function(x,density = TRUE,...){
+  hist(x,freq = FALSE,...)
+  if (density) lines(density(x),col="red",lty=2,lwd=2)
+}
+```
+
+```{r}
+package.skeleton(name = "Myhist")
+```
+
+Once you have filled all required files, you can compile the package in a command line (not the R console!) with the following command: `R CMD build Myhist`
+
+Once the package exists, you can install it using the Rstudio panel or the command `install.packages`:
+
+```{r}
+install.packages("./Myhist_1.0.tar.gz",repos = NULL)
+```
+
+```{r}
+library(Myhist)
+?myhist
+myhist(rnorm(1000))
+```
+
+> Exercise: create a shiny app allowing to explore the relationship between the gas consumption on highways with the engine displacement, according to the year of manufacture, for the mpg data (using ggplot).
+
+

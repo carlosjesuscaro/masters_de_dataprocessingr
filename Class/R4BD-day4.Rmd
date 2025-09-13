@@ -1,0 +1,509 @@
+---
+title: "R4BD - day 4"
+author: "CB"
+date: "2025-04-01"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Handling massive data with the `dplyr` library
+
+In Data Science, Statistics and Machine Learning, we consider 4 situations:
+
+- a data set with $n$ (number of individuals) large (> 100 000 ind.)
+- a data set with $p$ (number of variables) large (> 50-100 var, high-dimensional data)
+- a data set with $n$ and $p$ large (massive data)
+- a data set with $p$ large and $n<p$ (ultra high-dimensional data)
+
+The `dplyr` package is one of the tool that is designed to explore those kind of data sets. The main idea of this library is to access and manipulate the data in a more natural way, as close as possible to the way humans think.
+
+As all packages, we need to install and load the `dplyr` package:
+
+```{r}
+#install.packages("dplyr")
+library(dplyr)
+```
+
+> Remark: we have a message to inform us that those function names are now referring to the dplyr functions. It is still possible to use the other ones by using their full names: `stats::filter()`.
+
+In order to illustrate the features of this package, we need to consider a large data set such as the `flight` data:
+
+```{r}
+#install.packages("nycflights13")
+library(nycflights13)
+data(flights)
+```
+
+```{r}
+?flights
+```
+
+```{r}
+dim(flights)
+```
+
+This data set gathers information about all flights operated from one of the three NYC airports during the year 2013.
+
+## The `filter` function
+
+The `filter` function aims at selecting a subpart of the data by selecting certain rows conditionally to some criteria.
+
+Here is the general syntax of the `filter` function (and all `dplyr` functions):
+
+```{r eval=FALSE}
+data.out = filter(data,var1 == val1,var3 == val2,...) 
+```
+
+> Remark: we don't need to put quotes around the names of variables in the call of filter.
+
+A typical call on the `flights` data can be:
+
+```{r}
+flights2 = filter(flights,origin == "JFK")
+```
+
+Here, we focused on all flights that departed JFK airport in 2013.
+
+```{r}
+dim(flights)
+dim(flights2)
+```
+
+> Exercise: Extract a data set will all flights from JFK to Los Angeles (LAX) in 2013.
+
+```{r}
+JFTtoLAX = filter(flights,origin == "JFK",dest == "LAX",year == 2013)
+```
+
+Just for the reminder, it is possible to do the same extraction with classical R commands:
+
+```{r}
+JFTtoLAX2 = flights[(flights$origin == "JFK") & 
+                      (flights$dest == "LAX") &
+                      (flights$year == 2013), ]
+```
+
+> Exercise: extract a new data table with all flights that flew from JFK to Boston (BOS) between May, 1st and June, 30th 2013 and that arrived with a delay larger than 30 min.
+
+```{r}
+JFKtoBOS <- filter(flights, 
+  origin == "JFK",
+  dest == "BOS",
+  arr_delay > 30,
+  month %in% c(5,6)
+)
+dim(JFKtoBOS)
+```
+
+At this time, it could be useful to have some statistics about the companies operating this direction:
+
+```{r}
+table(JFKtoBOS$carrier)
+```
+
+Once again, we can perform the same action with classical R commands:
+
+```{r}
+JFKtoBOS2 = flights[(flights$origin == "JFK") & 
+                      (flights$dest == "BOS") &
+                      (flights$arr_delay > 30)&
+                      (flights$month %in% c(5,6)), ]
+dim(JFKtoBOS2)
+```
+
+> Important remark: R and `dplyr` have different manners to treat missing values (NAs): R is keeping the rows for which we don't know the arrival delay whereas `filter` will remove those rows.
+
+## The `arrange` function
+
+The `arrange` function is quite simple since ot will simply reorder the rows of the data set for helping the display. It may be very useful in combination with `filter`.
+
+A typical example:
+
+```{r}
+JFKtoBOS <- filter(flights, 
+  origin == "JFK", dest == "BOS",
+  arr_delay > 30, month %in% c(5,6))
+JFKtoBOS = arrange(JFKtoBOS,desc(arr_delay))
+JFKtoBOS
+```
+
+This command allows to display first the flights from JFK to BOS with the largest arrival delays.
+
+It is also possible to order the rows according to several criteria:
+
+```{r}
+JFKtoBOS = arrange(JFKtoBOS,desc(arr_delay),carrier)
+JFKtoBOS 
+```
+
+> Exercise: focus on all flights operated by Delta Airlines and departing from LGA, and order them to display the worst departure delays.
+
+```{r}
+Y = filter(flights,origin == "LGA",carrier=="DL")
+Y = arrange(Y,desc(dep_delay))
+Y
+```
+
+## The `select` function
+
+The `select` function aims to make a selection of variables to extract as well a smaller table than the original one. In combination with `filter`, we will be able to restrict the data to both the individuals and variables of interest.
+
+A basic example of the usage of `select` could be:
+
+```{r}
+X = select(flights,month,day,arr_delay)
+X[1:10,]
+```
+
+The new table `X` has now only 3 variables.
+
+> Exercise: use filter and select to create a data set with all flights from JFK to BOS in May 2013 with only the arrival and departure delays in the table.
+
+```{r}
+X = filter(flights,origin == "JFK",dest == "BOS",month == 5)
+X = select(X,arr_delay,dep_delay)
+boxplot(X,col=c('lightblue','pink'))
+```
+
+## The `mutate` function
+
+The `mutate` function allows to add new variables to the data frame by combination of the existing ones.
+
+For instance, the distance between the two airports is expressend in miles. We could add another variable where the distance is expressed in kilometers:
+
+```{r}
+flights2 = mutate(flights,dist_km = distance * 1.60934)
+colnames(flights2)
+```
+
+> Exercise: add a new variable to the data set providing the delay gain during the flight between departure and arrival. Then, visualize the distribution of this variable to confirm our previous analysis.
+
+```{r}
+flights2 = mutate(flights,delay_gain = dep_delay - arr_delay)
+ncol(flights2)
+```
+
+```{r}
+library(ggplot2)
+ggplot(flights2) +
+  geom_histogram(aes(x = delay_gain),fill='lightblue',bins = 30) +
+  theme_light()
+```
+
+We can indeed notice that on average the pilots are able to reduce the delay during the flight by `r round(mean(flights2$delay_gain,na.rm=TRUE))` minutes.
+
+## The `summarise` function
+
+This last simple function aims to extend the `summary` function of the `base` package of R by allowing to compute any statistics we want about the data.
+
+```{r}
+summary(flights)
+```
+
+Whereas we can get this with `summarise`:
+
+```{r}
+my_sum = summarise(flights,
+                   dep_delay_mean = mean(dep_delay,na.rm=TRUE),
+                   dep_delay_sd = sd(dep_delay,na.rm=TRUE),
+                   arr_delay_mean = mean(arr_delay,na.rm=TRUE),
+                   arr_delay_sd = sd(arr_delay,na.rm=TRUE),)
+my_sum
+```
+
+In addition, we can combine this function with the `group_by` function to explore combinations with other variables:
+
+```{r}
+my_groups = group_by(flights,carrier)
+my_sum = summarise(my_groups,
+                   dep_delay_mean = mean(dep_delay,na.rm=TRUE),
+                   dep_delay_sd = sd(dep_delay,na.rm=TRUE),
+                   arr_delay_mean = mean(arr_delay,na.rm=TRUE),
+                   arr_delay_sd = sd(arr_delay,na.rm=TRUE),)
+my_sum
+```
+
+Such a summary can be used to get this:
+
+```{r}
+ggplot(my_sum) +
+  geom_point(aes(x=dep_delay_mean,y=arr_delay_mean)) +
+  geom_text(aes(x=dep_delay_mean,y=arr_delay_mean,label = carrier)) +
+  geom_abline(slope = 1,intercept = 0)+
+  theme_light()
+```
+
+> Exercise: study the bahavior of arrival delay according to the month of the year.
+
+```{r}
+my_groups = group_by(flights2,month)
+my_sum = summarise(my_groups,
+                   dep_delay_mean = mean(dep_delay,na.rm=TRUE),
+                   dep_delay_sd = sd(dep_delay,na.rm=TRUE),
+                   delay_gain_mean = mean(delay_gain,na.rm=TRUE),
+                   delay_gain_sd = sd(delay_gain,na.rm=TRUE))
+my_sum
+```
+
+```{r}
+ggplot(data = my_sum) +
+  geom_line(aes(x = month,y = delay_gain_mean))+
+  theme_light()
+```
+
+```{r}
+ggplot(data = my_sum) +
+  geom_line(aes(x = month,y = delay_gain_mean),colour = "lightblue") +
+  geom_line(aes(x = month,y = dep_delay_mean),colour = "pink") +
+  theme_light()
+```
+
+As a conclusion, we can see that the worst departure delays are for vacations but we can not see a clear tendancy for the delay gain.
+
+> Exercise: study the relationship between the arrival delay and the flight distance, according to the month of the year.
+
+
+```{r}
+my_groups = group_by(flights2,month,carrier)
+my_sum = summarise(my_groups,
+                   arr_delay_mean = mean(arr_delay,na.rm=TRUE),
+                   distance_mean = mean(distance,na.rm=TRUE))
+my_sum
+```
+```{r}
+ggplot(data = my_sum, aes(x = distance_mean,y = arr_delay_mean)) +
+  geom_point(colour = "lightblue") +
+  facet_wrap(~ month,ncol=4) +
+  geom_smooth(method="lm") + 
+  theme_light()
+```
+
+These extraction and visualization allow us to conclude that it is easier to be on time (even in advance) for long flights than for short flights.
+
+
+## The pipe `%>%` operator
+
+In most computations we do, many intermediate results are saved into memory to ease the coding but are in fact useless after the final result has been obtained. To avoid saving intermediate results, the `dplyr` package proposes the pipe operator (`%>%`), following other languages such as bash for instance.
+
+As an historical example, this is a use of the pipe operator `|` in bash:
+
+```{bash eval=FALSE}
+top | grep "Mail"
+```
+
+To illustrate a basic use of the `%>%` operator in R, let's rewrite the previous action with it:
+
+```{r}
+my_groups = group_by(flights2,month,carrier)
+my_sum = summarise(my_groups,
+                   arr_delay_mean = mean(arr_delay,na.rm=TRUE),
+                   distance_mean = mean(distance,na.rm=TRUE))
+my_sum
+```
+
+becomes:
+
+```{r}
+my_sum = flights %>% group_by(month,carrier) %>%
+  summarise(arr_delay_mean = mean(arr_delay,na.rm=TRUE),
+            distance_mean = mean(distance,na.rm=TRUE))
+my_sum
+```
+
+This call avoids to keep in memory the `my_groups` data set, which is in fact a copy of flights reorganized by groups.
+
+> Exercise: use the pipe operator to also avoid keeping `my_sum` by passing directly to `ggplot`.
+
+```{r}
+rm(list=ls()); data(flights)
+flights %>% group_by(month,carrier) %>%
+  summarise(arr_delay_mean = mean(arr_delay,na.rm=TRUE),
+            distance_mean = mean(distance,na.rm=TRUE)) %>%
+  ggplot(aes(x = distance_mean,y = arr_delay_mean)) +
+  geom_point(colour = "lightblue") +
+  facet_wrap(~ month,ncol=4) +
+  geom_smooth(method="lm") + 
+  theme_light()
+```
+
+> Exercise: using the pipe operator, plot the evolution of the delay gain along the months of the year for flights operated by Delta Airlines and that departed from JFK before noon (12am) every day.
+
+```{r}
+tic = Sys.time()
+flights %>%
+  filter(carrier == "DL", origin == "JFK", hour < 12) %>%
+  mutate(delay_gain = dep_delay - arr_delay) %>%
+  group_by(month) %>%
+  summarise(delay_gain_mean = mean(delay_gain,na.rm=TRUE)) %>%
+  ggplot(aes(x=month,y=delay_gain_mean)) +
+  geom_line() + theme_light()
+cat(Sys.time()-tic)
+```
+
+
+```{r}
+tic = Sys.time()
+flights %>%
+  select(carrier,month,hour,origin,dep_delay,arr_delay) %>%
+  filter(carrier == "DL", origin == "JFK", hour < 12) %>%
+  mutate(delay_gain = dep_delay - arr_delay) %>%
+  group_by(month) %>%
+  summarise(delay_gain_mean = mean(delay_gain,na.rm=TRUE)) %>%
+  ggplot(aes(x=month,y=delay_gain_mean)) +
+  geom_line() + theme_light()
+cat(Sys.time()-tic)
+```
+
+# Relational data, dates and maps
+
+The modern data we record everyday are more complex than just continuous or categorical data that can be stored with flat tables. For instance, we record a lot of times series, geo-localized data, networks, ... which can be in addition stored in different files and may be even in different locations. 
+
+## Relational data 
+
+A set of relational data is usually made of several files, focusing each on one aspect of the studied phenomenon, and that are linked together using identification numbers. For instance, in a hospital, we can have data about the patients, but also about the doctors/nurses, but also the rooms, the material and even the ambulances....
+
+In the case of data from NYC airports we considered, there are also several data tables (`flights`,`airlines`,`planes`,`airports`,`weather`) that describe all aspect of the life of those airports during one year.
+
+For instance, to answer the following two questions, we need to "connect" the tables:
+
+- is there a relationship between the arrival delay and the age of the plane? -> connect `flights` and `planes`
+- is there a relationship between the departure delay and the local weather? -> connect `flights` and `weather`
+
+In order to connect such relational data bases, the `dplyr` package introduces a few interesting tools: `inner_join`, `left_join`, `right_join` and `full_join`.
+
+To illustrate the use of these functions, the best is to consider two small relational tables `A` and `B`:
+
+```{r}
+A = data.frame(id=c(1,2,4,6,7),x = rnorm(5),y = c(12,-2,7,89,5))
+A
+```
+```{r}
+B = data.frame(id=c(2,3,5,6,8),z = rpois(5,1))
+B
+```
+Let's first use `left_join` to connect the tables:
+
+```{r}
+left_join(A,B,by = "id")
+```
+
+```{r}
+right_join(A,B,by = "id")
+```
+
+```{r}
+inner_join(A,B,by = "id")
+```
+
+```{r}
+full_join(A,B,by="id")
+```
+
+> Exercise: add to the `flights` table an extra column with the full name of the company.
+
+```{r}
+flights2 = left_join(flights,airlines,by = "carrier")
+```
+
+```{r}
+dim(flights2)
+colnames(flights2)
+```
+
+```{r}
+flights2[1:5,15:20]
+```
+
+```{r}
+dim(flights)
+dim(airlines)
+```
+
+> Exercise: produce a plot allowing to see the (possible) relationship between the arrival delay and the age of the plane (using the pipe operator and ggplot).
+
+```{r}
+flights %>%
+  select(tailnum,arr_delay) %>%
+  left_join(select(planes,tailnum,year),by="tailnum") %>%
+  select(arr_delay,year) %>%
+  mutate(age = 2013 - year) %>%
+  group_by(age) %>%
+  summarise(arr_delay_mean = mean(arr_delay,na.rm=TRUE)) %>%
+  ggplot(aes(x = age,y = arr_delay_mean)) +
+  geom_point() + geom_smooth() + theme_light()
+```
+
+> Exercise: replicate this analasis by including a link with the type of engine.
+
+```{r}
+flights %>%
+  select(tailnum,arr_delay) %>%
+  left_join(select(planes,tailnum,year,engine),by="tailnum") %>%
+  select(arr_delay,year,engine) %>%
+  mutate(age = 2013 - year) %>%
+  group_by(age,engine) %>%
+  summarise(arr_delay_mean = mean(arr_delay,na.rm=TRUE)) %>%
+  ggplot(aes(x = age,y = arr_delay_mean)) +
+  geom_point() + geom_smooth() +
+  facet_wrap(~ engine) + theme_light()
+```
+
+> Exercise: produce a plot allowing to evaluate the possible link between the departure delay and some weather conditions (precipitations or visibility).
+
+```{r}
+flights %>%
+  select(origin,month,day,hour,dep_delay) %>%
+  left_join(weather,by=join_by(origin,month,day,hour)) %>%
+  select(dep_delay,precip) %>%
+  filter(precip >= 0.25) %>%
+  ggplot(aes(x=precip,y=dep_delay)) +
+  geom_point() + geom_smooth() + theme_light()
+```
+
+## The maps
+
+R is quite good at plotting geographical data. It is in fact used a lot by people in Geography.
+
+There are several packages allowing to plot such data:
+
+- the most basic one: the `maps` library
+
+```{r}
+#install.packages("maps")
+library(maps)
+map()
+```
+and if you have access to longitude and latitude data, you can directly plot them on a map:
+
+```{r}
+map("usa")
+points(airports$lon,airports$lat,pch=19,col='lightblue')
+```
+
+- the `leaflet` library:
+
+```{r}
+#install.packages("leaflet")
+library(leaflet)
+leaflet() %>%
+  addTiles() %>%
+  addMarkers(lng=airports$lon,lat=airports$lat)
+```
+
+> Exercise: produce a map of the airports that are connected with LGA.
+
+
+
+
+
+
+
+
+
+
+
+
+

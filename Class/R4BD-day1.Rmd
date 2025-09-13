@@ -1,0 +1,853 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+# Introduction
+
+R is a free software, avalaible for all platforms, that gives access to the most recent advances in Statistics, Statistical Learning and Machine Learning.
+
+R and Python are two softwares for Data Science that are totally complementary. It is really important to master the two softwares. You'll even need to use the two in a single project! Hopefully, it is nowadays quite esy to use R and Python in a single document!
+
+R is originally provided by the CRAN consortium as a free software. There are also private companies that support the development of R through packages and graphical interfaces. In particular, the company Posit is providing the Rstudio GUI and many strategic packages as free softwares as well.
+
+A few important links:
+
+- the official website of R: https://cran.r-project.org
+- the Posit (formally Rstudio) webpage: https://www.rstudio.com
+
+The most attractive elements of R are:
+
+- a community of researchers, engineers, and users that produce the most recent statistical technologies,
+- the community is also supported by private companies that make the software a really professenial product,
+- all the certified R codes are all provided birectly in the software with a full documentation.
+
+
+# R 101 - How to work with R
+
+To work with R, you need two elements installed on your machine:
+
+- the R core, that you have to download on the CRAN server
+- the GUI Rsudio which will make the interface between the user and R
+
+> Notice that the R command line may be necessary to use sometimes, for instance if you want to run a code remotely on a distant server.
+
+## R can be used as a simple calculus tool
+
+With R it is of course possible to do calculations:
+
+```{r}
+2 + 2
+```
+
+Here, we can notice that R is doing all calculations using vectors or matrices: the `[1]` indicates that `4` is the first element of a vector (here of size 1).
+
+```{r}
+rnorm(100) + rnorm(100)
+```
+
+In this example, R added, term by term, the elements of two 10-dimensional vectors that we obtained by simulating Gaussian data (using the `rnorm` function).
+
+The numbers within the squared brackets indicate the position of the adjacent elements in the resulting vector
+
+In R, you also have access to advanced calculation function:
+
+```{r}
+log(2)
+```
+
+```{r}
+sin(1)
+```
+
+In order to keep in memory the obtained results, we can use variables:
+
+```{r}
+x = log(2)
+```
+
+To access the value inside `x`, you have to type:
+
+```{r}
+x
+```
+
+> Remark: the operator `=` assigns the value on the right to the variable on the left.
+
+In R, there is a second opertor to do this: the operator `<-`
+
+```{r}
+y <- log(2)
+y
+```
+
+In general, the operators `=` and `<-` are equivalent. There are however a few situations where we need to use the `<-`:
+
+- when we want to assigne from the left to the right:
+
+```{r}
+log(2) -> w
+w
+```
+
+- when we want to make an assignment within the call of a function:
+
+```{r}
+system.time(xx <- log(2))
+xx
+```
+
+## vectors, matrices and other funny structures
+
+Of course, we frequently need advance structures to store and organize the results and data.
+
+- the vectors: in R, there are several ways to create vectors
+
+```{r}
+x = c(1,3,-2,67)
+x
+```
+
+```{r}
+x = seq(-2,8)
+x
+```
+
+```{r}
+x = seq(-2,8,by=2)
+x
+```
+
+```{r}
+x = seq(-2,8,by=2.1)
+x
+```
+
+```{r}
+x = seq(18,8,by=-2)
+x
+```
+
+```{r}
+x = seq(1,10,length.out=89)
+x
+```
+
+```{r}
+x = 1:10 # equivalent of seq(1,10)
+x
+```
+
+```{r}
+x = -2:10
+x
+```
+
+```{r}
+x = -(2:10)
+x
+```
+
+```{r}
+x = rep(1,5)
+x
+```
+
+```{r}
+x = rep(1:3,3)
+x
+```
+
+```{r}
+x = rep(1:3,c(2,3,4))
+x
+```
+
+> Important remarks: it is possible to create vectors with numeric elements, but also booleans, characters, strings, ... BUT it is not possible to mix those types of elements.
+
+```{r}
+c(TRUE, FALSE, TRUE, TRUE)
+```
+
+The reserved keywords `TRUE`, `FALSE`, `T` and `F` are used to denote the booleans. Warning: it is in practice possible to overwrite the booleans in a code. This of course very dangerous!
+
+```{r}
+TRUE = 2
+```
+
+```{r}
+T = 2
+T
+```
+
+
+```{r}
+c(TRUE,FALSE, F)
+```
+
+```{r}
+c(TRUE,T,FALSE)
+```
+
+> Advice: never use `T` and `F` for booleans, use only `TRUE` and `FALSE`
+
+```{r}
+a = c('a',"b","HELLO")
+a
+```
+
+```{r}
+b = c("I'm going at the school!","This is great!")
+b
+```
+
+Il this case, we really need to use the `"` because the `'` is used in the sentence.
+
+```{r}
+a = c(2,TRUE,"Hello!")
+a
+```
+
+- matrices: it is also possible to create matrice with different functions
+
+```{r}
+X = matrix(c(1,2,3,4,5,6),nrow = 3)
+X
+```
+
+```{r}
+X = matrix(c(1,2,3,4,5,6),nrow = 3,byrow = TRUE)
+X
+```
+
+By default, R (but also Python, C++, ...) will always fill the matrices by column because it is faster for tyechnical reasons.
+
+```{r}
+system.time(X <- matrix(rnorm(100000000),nrow = 100))
+system.time(X <- matrix(rnorm(100000000),nrow = 100,byrow = TRUE))
+```
+
+If you want to be sure to organize the matrix by row or by column, there are two functions:
+
+```{r}
+A = cbind(1:3,2:4,3:5)
+A
+```
+
+```{r}
+A = rbind(1:3,2:4,3:5)
+A
+```
+
+> Remark: as for the vectors, it is possible to define matrices of numerics, booleans and strings, but not to mix them!
+
+```{r}
+A = matrix(c(TRUE,FALSE,TRUE,FALSE),nrow=2)
+A
+```
+
+```{r}
+A = matrix(c("a","b","c","d"),nrow=2)
+A
+```
+
+- data frames: data frame is a unique structure that is corresponding exactly to the idea of a data table that stattisticians and data scientist manipulate. Rows will correspond to individuals and columns will correspond to variables.
+
+```{r}
+D = data.frame(var1 = rnorm(5),
+               var2 = runif(5),
+               var3 = c("M","F","F","M","F"))
+D
+```
+> Remark: data frames allow to mix different data types in a single object. It is however not possible to mix the data types in the same column.
+
+In data frames, we can give a name to the columns and rows:
+
+```{r}
+rownames(D) = c('Toto','Tyty','Alice','John','Clara')
+D
+```
+
+
+```{r}
+dim(D)
+```
+
+```{r}
+rownames(D)
+colnames(D)
+```
+
+> Remark: it is of course possible to convert a data frame to a matrix using the function `as.matrix`
+
+```{r}
+A = as.matrix(D)
+A
+```
+
+> Remark: the variable `var3` here should not be considered as character because it is in fact a factor in the statistical sense. It could be interesting to transform it as factor:
+
+```{r}
+D = data.frame(var1 = rnorm(5),
+               var2 = runif(5),
+               var3 = as.factor(c("M","F","F","M","F")))
+D
+```
+Here, `var3` is now a categorical variable.
+
+- lists: the lists allow you to gather in a single object structures of different types and different lengths.
+
+```{r}
+l = list(v1 = rnorm(5),
+         v2 = as.factor(c("M","F","F","M","F")),
+         name = "Charles",
+         value = 23,
+         D = D,
+         A = diag(3))
+l
+```
+
+> Remark: the lists are used a lot in R because all R functions return the results as lists.
+
+Here are some useful functions to get information about the different objects:
+
+```{r}
+x = 1:10
+length(x)
+dim(x)
+```
+
+```{r}
+dim(D)
+```
+
+```{r}
+A = matrix(1:12,nrow = 3)
+dim(A)
+length(A)
+```
+
+```{r}
+nrow(A)
+ncol(A)
+```
+
+```{r}
+nrow(D)
+ncol(D)
+```
+
+```{r}
+length(l)
+```
+
+For a list, the `length` function provides the number of fields in the list.
+
+## The R functions
+
+R provides a lost pre-coded functions, that come with many options and that are fully documented.
+
+```{r}
+x = rnorm(10)
+mean(x)
+```
+
+When you don't know the name of the function you need to use, R is offering you a way to find both the name of the function and to learn how to use it. It is a 2-step procedure:
+
+- the opertor `??` will allow you to find the name of the function using some keywords,
+- the operator `?` will provide you the full documentation of the targeted function.
+
+In practice, let's suppose we would like to perform a Student test:
+
+```{r}
+??Student
+```
+
+```{r}
+?t.test
+```
+
+Thanks to this 2-step strategy, you learn the name of the function and how to use it. The documentation of R has a very strict structure, that will help you to quicly find the elements you need. 
+
+The following documentation fields are always present:
+
+- the name and a short description in English,
+- Usage: the minimal and full call of the function, with all possible input parameters and their default values,
+- Arguments: this field describes the input parameters
+- Values: the description of all output parameters, often provided within a list,
+- Examples: it provides some working examples that you can directly execute in the console.
+
+> Exercise: find a function allowing to do the clustering of the following data into 2 groups:
+
+```{r}
+x = c(rnorm(50,0,1),rnorm(35,2,1))
+```
+
+```{r}
+??clustering
+```
+
+```{r}
+?kmeans
+```
+
+```{r}
+out = kmeans(x,centers = 2)
+out
+plot(x,col=out$cluster)
+```
+
+## How to access the elements of vectors, matrices, ...
+
+To access to specific elements of vectors, matrices, ... we need to use specific "operators". For vectors, matrices and data frames, we will use the `[ ]`.
+
+> Remark: the squared barckets `[]` are reserved for vectors, matrices, ... and the brackets `()` are reserved for functions!
+
+```{r}
+x = rnorm(10)
+mean = mean(x)
+mean[1]
+```
+
+> Remark: this however impose to always use brackets for functions even when they don't need input parameters. We need to call these functions with empty brackets.
+
+```{r}
+ls()
+```
+
+Let's go back to the access of the elements of vectors:
+
+```{r}
+x = rnorm(5)
+x
+```
+
+```{r}
+x[3]
+```
+
+Of course, I can also use this to modify the vector:
+
+```{r}
+x[3] = 0
+x
+```
+
+We can also use the reserved keyword `NA` to indicate that the value is missing:
+
+```{r}
+x[3] = NA
+x
+```
+
+```{r}
+x[2:4]
+```
+
+```{r}
+x[c(2,4)]
+```
+
+```{r}
+x[c(2,4)] = 1000
+x
+```
+
+> Important remark: in R, the indexing of vectors, matrices, ... is starting at 1 (not 0).
+
+For matrices, we will use the squared brackets but with two elements inside: the index of the row and then the index of the column.
+
+```{r}
+A = diag(5)
+A
+```
+
+```{r}
+A[2,4]
+```
+
+```{r}
+A[2,4] = 99
+A
+```
+
+```{r}
+A[1:3,1:3]
+```
+
+```{r}
+A[1:3,1:3] = rnorm(9)
+A
+```
+
+> Exercise: replace the matrix entry in the second row and last column with a missing value.
+
+```{r}
+A[2,5] = NA
+A
+```
+
+> Remark: the function `is.na` allows to locate the missing value in an object
+
+```{r}
+is.na(A)
+```
+
+```{r}
+sum(is.na(A))
+```
+
+For lists, the operator to access the different fields is the operator `$`:
+
+```{r}
+l = list(v1 = rnorm(5),
+         v2 = as.factor(c("M","F","F","M","F")),
+         name = "Charles",
+         value = 23)
+l
+```
+
+```{r}
+l$v1
+```
+
+and because this field is a vector, we can also access the elements of this vector:
+
+```{r}
+l$v1[3]
+```
+
+```{r}
+l$v1[3] = NA
+l
+```
+
+When we would like to access the elements of a list without knowing the names of the different fields, we need to use another operator: `[[ ]]`.
+
+```{r}
+l$value
+l[[4]]
+```
+
+This is in particular useful when you would like a code to access automatically to the fields of the list:
+
+```{r}
+for (i in 1:4) print(l[[i]])
+```
+
+This access can also be used to add a new field to an existing list:
+
+```{r}
+l[[5]] = diag(3)
+l
+```
+
+> Remark: notice that it is also possible to create lists of lists
+
+```{r}
+mylist = list(l=l,
+              tag="Bonjour")
+mylist
+```
+
+> Exercise: modify the matrix entry of the second row, first column of the 5th field of the first field of `mylist` to put in place a missing value.
+
+```{r}
+mylist$l[[5]][2,1] <- NA
+mylist
+```
+
+An alternative would be:
+
+```{r}
+mylist[[1]][[5]][2,1] <- NA
+```
+
+For data frames, the access can be done either using the matrix format `[i,j]` or as a list by considering the variables as the fields of a list.
+
+```{r}
+D = data.frame(var1 = rnorm(5),
+               var2 = runif(5),
+               var3 = as.factor(c("M","F","F","M","F")))
+rownames(D) = c('Toto','Tyty','Alice','John','Clara')
+D
+```
+
+For accessing the 3nd element of `var2`, we can do either:
+
+```{r}
+D[3,2]
+```
+ 
+or:
+
+```{r}
+D$var2[3]
+```
+
+Once again, we can also access several elements at the same time: here for instance, we aim at accessing the 3 first elements of the two last variables of the data frame.
+
+```{r}
+D[1:3,2:3]
+```
+
+When working with data frames, it is also possible to access the different elements using the row and column names:
+
+```{r}
+D["Alice",c("var2","var3")]
+```
+
+Of course, we can use this for modifying the data:
+
+```{r}
+D["Alice",c("var2","var3")] = NA
+D
+```
+> Exercise: compute the mean of `var1` for Alice, Clara and Toto.
+
+```{r}
+mean(D[c("Alice","Clara","Toto"),1])
+```
+
+```{r}
+mean(D$var1[c(1,3,5)])
+```
+
+## Conditional access to vector, matrices, ...
+
+In many situations of Data Science, we need to access the data of specific individuals who satisfy some conditions. We talk about "conditional access"...
+
+Let's consider the following data frame:
+
+```{r}
+X = data.frame(salary = c(2567,1234,5600,3450,1879),
+               age = c(24,22,56,34,43),
+               gender = as.factor(c("M","M","F","M","F")))
+rownames(X) = paste("Ind.",1:5)
+X
+```
+Let's first extract for instance the salary of all female individuals:
+
+```{r}
+X[X$gender=="F","salary"]
+```
+
+> Remark: the test operator in R is `==`. The test for difference will be `!=`. The greater and lower tests will be respectively `>` and `<`.
+
+> Exercise: extract the salary of all individuals younger than 40.
+
+```{r}
+X[X$age <= 40,"salary"]
+```
+
+If we want to get all data on one dimension (either individuals or variables), we can just specify nothing to get all data. For instance, if we want all data of individuals younger than 40:
+
+```{r}
+X[X$age <= 40,]
+```
+
+It is even possible to combine several conditions using the AND (`&`) and OR (`|`) operators.
+
+Let's extract the gender of individuals younger than 40 with a salary larger than 2000:
+
+```{r}
+X[(X$age <= 40) & (X$salary >= 2000),"gender"]
+```
+
+
+> Exercise: compute the average salary of females.
+
+```{r}
+mean(X[X$gender=="F","salary"])
+```
+
+> Exercise: compute the average salary of males older than 30.
+
+```{r}
+mean(X[(X$gender=="M") & (X$age >= 30),"salary"])
+```
+
+## The graphical system of R
+
+The graphical system of R is known to be very powerful, ... if we manage to use it! A plot in R has to be seen as a Lego, because we build it step by step.
+
+Let's first explore the graphical possibilities of R using the `demo(graphics)`:
+
+```{r}
+demo(graphics)
+```
+
+The `plot` function is the central element of all graphical procedures. For instance, let's simulate some data and plot them with a title.
+
+```{r}
+x = rnorm(100)
+y = rnorm(100)
+plot(x,y)
+title(main='My wonderful plot!')
+```
+
+The `plot` function is the function of R that has the more options for customizing the plot:
+
+```{r}
+plot(x,y,pch=19,col='lightblue',xlab='my x lab',ylab='YY',cex = 2)
+title(main='My wonderful plot!',col.main="red")
+```
+
+> Exercise: change the form of the patch to use `+` and a ligh pink color.
+
+```{r}
+plot(x,y,pch="+",col='lightpink',xlab='my x lab',ylab='YY',cex = 2)
+title(main='My wonderful plot!',col.main="red")
+```
+
+## Laoding and saving data
+
+Of course, in Data Science, we frequently need to load data from a file and to save the results of our analyses on the disk. R is allowing to read and save the data in many formats, depending on the needs.
+
+There is roughly three levels of data formats:
+
+- the most simple: a CSV file, which is mainly a text file with a specific structure,
+- the optimal format for R: a Rdata file, which is a binary format specifically designed for R,
+- all other formats for other (proprietary) softwares.
+
+### The CSV format
+
+Let's start with the CSV format. This format is definitely the most simple way to exchange data with anyone. This kind of format can be read on any computer on any system. However, this format is usually not efficient in term of storage (the files may be extremly large for big datasets).
+
+To read data from a CSV file on the hard disk, we need to use the `read.csv` function:
+
+```{r eval=FALSE}
+X = read.csv(file="path/to/the/file.csv",header = TRUE,sep = ';')
+```
+
+To save data in a CSV file, we can use the `write.csv` function:
+
+```{r eval=FALSE}
+write.csv(X,file="path/to/the/newfile.csv")
+```
+
+In order to illustrate this, we can save an existing data frame in the R environment and try to reload it:
+
+```{r}
+rm(list=ls()) # This command clean the R environment
+X = data.frame(salary = c(2567,1234,5600,3450,1879),
+               age = c(24,22,56,34,43),
+               gender = as.factor(c("M","M","F","M","F")))
+rownames(X) = paste("Ind.",1:5)
+X
+
+write.csv(X,file='/Users/charles/Travail/enseignement/2024-2025/S2-R4BD/X.csv')
+```
+We can now reload the data stored in this file under a different variable name:
+
+```{r}
+Y = read.csv(file="/Users/charles/Travail/enseignement/2024-2025/S2-R4BD/X.csv",
+             header = TRUE, sep = ",",row.names = 1)
+sum(Y != X)
+```
+
+### The Rdata format
+
+This format is specific to R and it is optimized in term of data compression. In addition, the Rdata format allows to store several R objects in a single file.
+
+The two functions to respectively save and load the data, to and from a Rdata file are:
+
+```{r eval=FALSE}
+save(obj1,obj2,obje3,file='path/to/the/file.Rdata')
+load(file='path/to/the/file.Rdata')
+```
+
+
+Let's try to save some data in a Rdata file, and then to reload the data.
+
+```{r}
+rm(list=ls()) # This command clean the R environment
+X = data.frame(salary = c(2567,1234,5600,3450,1879),
+               age = c(24,22,56,34,43),
+               gender = as.factor(c("M","M","F","M","F")))
+A = diag(5)
+l = list(X = X, A = A)
+```
+
+```{r}
+save(X,A,l,file='/Users/charles/Travail/enseignement/2024-2025/S2-R4BD/myfile.Rdata')
+```
+
+Because the objects will be loaded with their original name, let's clean the environment before to reload the data:
+
+```{r}
+rm(list=ls())
+```
+
+
+```{r}
+load(file='/Users/charles/Travail/enseignement/2024-2025/S2-R4BD/myfile.Rdata')
+ls()
+```
+
+In order to illustrate the compression level of the Rdata format regarding the CSV format, we can do this experiment:
+
+```{r eval=FALSE}
+A.big = matrix(rnorm(1000^2),nrow=1000)
+write.csv(A.big,file='/Users/charles/Travail/enseignement/2024-2025/S2-R4BD/bigA.csv')
+save(A.big,file='/Users/charles/Travail/enseignement/2024-2025/S2-R4BD/bigA.Rdata')
+```
+
+Here, we can see that the Rdata file is far smaller than the CSV one for storing the same object. 
+### Working with other formats
+
+Naturally, it is frequent to have to read or save data in other formats (Python, Matlab, SAS, JSON, ...). In this case, it use necessary to use specific functions offered in appropriate packages. This is usually not pre-installed in the default version of R but it is possible to install those packages directly with R.
+
+For instance, let's consider loading JSON data. 
+
+```{r}
+#install.packages("jsonlite") # The installation has to be done only once
+library(jsonlite)             # The library has be be loaded every time
+```
+
+Once the library is installed and loaded, you can use the `fromJSON` function to read JSON data within R.
+
+```{r}
+?fromJSON
+```
+
+```{r}
+x = fromJSON('{"city" : "Z\\u00FCrich"}')
+x
+```
+
+It is also possible to export R data as JSON file:
+
+```{r}
+rm(list=ls()) # This command clean the R environment
+X = data.frame(salary = c(2567,1234,5600,3450,1879),
+               age = c(24,22,56,34,43),
+               gender = as.factor(c("M","M","F","M","F")))
+A = diag(5)
+l = list(X = X, A = A)
+toJSON(l)
+```
+
+> Exercise:
+
+- Clean your environment and create a data frame named `D` with 50 individuals, 4 continuous variables and add a few missing values on the last two variables.
+
+```{r}
+rm(list=ls())
+D = data.frame(v1 = rnorm(50),
+               v2 = runif(50),
+               v3 = rnorm(50),
+               v4 = rpois(50,3))
+sel = sample(50,10)
+D$v3[sel] = NA
+sel = sample(50,20)
+D$v4[sel] = NA
+D
+```
+
+
+- save this data frame on your hard disk as a CSV file
+
+- reload the data from the file under a new name (`Z` for instance)
+
+- write a small code allowing for each variable to replace the missing values by the mean of the variable.
