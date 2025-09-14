@@ -1,0 +1,35 @@
+---
+title: "Enron Report"
+author: "Carlos Jesus Caro"
+email: "carlos.jesus-caro@edu.dsti.institute"
+class: "[A24] Big Data Processing with R"
+date: "2025-09-14"
+output: html_document
+---
+
+## Submission Details
+
+* **Email:** `r rmarkdown::metadata$email`
+* **Class:** `r rmarkdown::metadata$class`
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Summary
+
+The purpose of thios document is to show thje 
+
+```{r cars}
+summary(cars)
+```
+
+## Including Plots
+
+You can also embed plots, for example:
+
+```{r pressure, echo=FALSE}
+plot(pressure)
+```
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.

@@ -1,16 +1,15 @@
-a <- 2
-print(a)
-typeof(a)
+# Loading thhe libraries
+library(dplyr)
+library(ggplot2)
 
-b <- c(2,3,4,4)
-typeof(b)
-b[2]
+# Loading the data
+data(mtcars)
 
-c <- c(2,3,5,4,6,7, 'a')
-typeof(c)
-c[3]
-class(c)
+base <- mtcars
+colnames(base)
+head(base)
+rownames(base)
 
-d <- list(3,4,5, 'a')
-typeof(d)
-d[[2]]
+base %>% filter(carb == 1, gear > 3) %>% nrow()
+
+ggplot(base, aes(x=gear, y=disp, size = hp)) + geom_point()
