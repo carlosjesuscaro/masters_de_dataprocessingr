@@ -166,7 +166,13 @@ x
 > Important remarks: it is possible to create vectors with numeric elements, but also booleans, characters, strings, ... BUT it is not possible to mix those types of elements.
 
 ```{r}
-c(TRUE, FALSE, TRUE, TRUE)
+a <- c(TRUE, FALSE, TRUE, TRUE)
+typeof(a)
+
+b <- c(2,3,4)
+typeof(b)
+
+b + 3
 ```
 
 The reserved keywords `TRUE`, `FALSE`, `T` and `F` are used to denote the booleans. Warning: it is in practice possible to overwrite the booleans in a code. This of course very dangerous!
