@@ -18,18 +18,63 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ## Summary
 
-The purpose of thios document is to show thje 
+The purpose of this document is to show the analysis completed over the data sets included in the 'Rdata' file.
 
-```{r cars}
-summary(cars)
+## Analysis
+### Loading thhe data and the libraries
+
+```{r}
+library(tidyverse)
+load('Enron.Rdata')
 ```
 
-## Including Plots
-
-You can also embed plots, for example:
-
-```{r pressure, echo=FALSE}
-plot(pressure)
+### Collecting the data sets as data frames
+```{r}
+employees <- as.data.frame(employeelist)
+messages <- as.data.frame(message)
+recipients <- as.data.frame(recipientinfo)
+references <- as.data.frame(referenceinfo)
 ```
 
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+
+Identification of the variables within each data set
+```{r}
+employees_cols <- paste(colnames(employees), collapse = ", ")
+sprintf("`employees` data frame column names: %s", employees_cols)
+
+messages_cols <- paste(colnames(messages), collapse = ", ")
+sprintf("`messages` data frame column names: %s", messages_cols)
+
+recipients_cols <- paste(colnames(recipients), collapse = ", ")
+sprintf("`recipients` data frame column names: %s", recipients_cols)
+
+references_cols <- paste(colnames(references), collapse = ", ")
+sprintf("`references` data frame column names: %s", references_cols)
+```
+
+Since every data frame has a unique ID, let's check if there are any duplicates.
+
+First, let's define a function that returns the number of repeated values in a given data frame column.
+
+```{r}
+check_duplicates <- function(df, col_id) {
+  rep <- df %>% 
+    group_by({{ col_id }}) %>%
+    count() %>%
+    filter(n > 1) %>%
+    nrow()
+  return(rep)
+}
+```
+
+
+```{r}
+sprintf("Number of duplicated IDs in `employees` data frame: %d", check_duplicates(employees, eid))
+
+sprintf("Number of duplicated IDs in `messages` data frame: %d", check_duplicates(messages, mid))
+
+sprintf("Number of duplicated IDs in `recipients` data frame: %d", check_duplicates(recipients, rid))
+
+sprintf("Number of duplicated IDs in `references` data frame: %d", check_duplicates(references, rfid))
+```
+

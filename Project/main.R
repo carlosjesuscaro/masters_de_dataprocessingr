@@ -38,9 +38,14 @@ employees %>%
 # 2. Messages
 head(messages)
 messages %>% count()
-
-# NUmber of e
+summary(messages)
 
 # 3. Recipients
 head(recipients)
+summary(recipients)
+
+# 4. References
+head(references)
+summary(references)
+
 
