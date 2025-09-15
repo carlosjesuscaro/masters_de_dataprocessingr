@@ -69,7 +69,7 @@ head(aa)
 aa %>%
   group_by(year) %>%
   count()
-
+  
 max(aa$year)
 min(aa$year)
 max(aa$date)
@@ -81,5 +81,10 @@ ggplot(aa, aes(x=year))
 length(messages$date)
 
 messages %>%
-  filter(date >= as.Date("2000-01-01") & date <= as.Date('2002-12-31')) %>%
-  pull(date) %>% min()
+  filter(date >= as.Date("1999-01-01") & date <= as.Date('2002-12-31')) %>%
+  nrow()
+
+length(messages$date)
+
+month(messages$date[1])
+format(messages$date[1], "%Y-%m")

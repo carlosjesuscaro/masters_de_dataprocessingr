@@ -82,6 +82,15 @@ messages <- messages %>%
 sprintf("Number of messages between these years: %d", length(messages$date))
 ```
 
+Adding two new features in the `messages` data frame for easier filtration: year and month
+```{r}
+messages <- messages %>%
+  mutate(
+    year = year(date),
+    year_month = format(date, "%Y-%m")
+  )
+```
+
 ### Data insights
 
 When reviewing th data, the 3 data frames (employees, messages and recipients), this report will aim to answer the the following questions:
@@ -89,10 +98,29 @@ When reviewing th data, the 3 data frames (employees, messages and recipients), 
 #### What is the difference in volume in messages in between the dates of October 31, 2001 and December 2, 2001 and the overall volume?
 
 ```{r}
-#messages$date %>% max()
-head(messages$date)
-
+messages %>%
+  group_by(year) %>%
+  count() %>%
+  rename('NumMessages' = n)
 ```
+Evidently, the year 2001 has a significant higher amount of messages compared to the other years. Diving into 2001
+```{r}
+count_2001 <- messages %>%
+                filter(year == 2001) %>%
+                group_by(year_month) %>%
+                count() %>%
+                rename('NumMessages' = n)
+
+ggplot(data = count_2001, aes(x = year_month, y = NumMessages)) +
+  geom_bar(stat = "identity", fill = "steelblue") +
+  labs(
+    title = "Number of Messages by Month in 2001",
+    x = "Month",
+    y = "Number of Messages"
+  )
+```
+
+It becomes evident that the months of October and November 2001 had a significant number of emails than any other month in the same year.
 
 #### How is the volume distribution among the different employee's role?
 
