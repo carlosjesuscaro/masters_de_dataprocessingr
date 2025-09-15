@@ -366,8 +366,14 @@ display: none;
 </div>
 <div id="summary" class="section level2">
 <h2>Summary</h2>
-<p>The purpose of this document is to show the analysis completed over
-the data sets included in the ‘Rdata’ file.</p>
+<p>The goal of this project is to perform a comprehensive data analysis
+of the datasets provided in the Rdata file. This report will highlight
+the effective application of a range of data manipulation, cleaning, and
+transformation skills. These techniques are essential for preparing raw
+data for analysis, a process that accounts for a significant portion of
+the effort in any data-driven project. The successful execution of these
+tasks will demonstrate proficiency in creating a robust and reproducible
+analytical workflow.</p>
 </div>
 <div id="analysis" class="section level2">
 <h2>Analysis</h2>
@@ -392,6 +398,9 @@ the data sets included in the ‘Rdata’ file.</p>
 messages &lt;- as.data.frame(message)
 recipients &lt;- as.data.frame(recipientinfo)
 references &lt;- as.data.frame(referenceinfo)</code></pre>
+</div>
+<div id="data-inspection" class="section level3">
+<h3>Data inspection</h3>
 <p>Identification of the variables within each data set</p>
 <pre class="r"><code>employees_cols &lt;- paste(colnames(employees), collapse = &quot;, &quot;)
 sprintf(&quot;`employees` data frame column names: %s&quot;, employees_cols)</code></pre>
@@ -417,8 +426,26 @@ values in a given data frame column.</p>
     nrow()
   return(rep)
 }</code></pre>
-<pre class="r"><code>sprintf(&quot;Number of duplicated IDs in `employees` data frame: %d&quot;, check_duplicates(employees, &#39;eid&#39;))</code></pre>
-<pre><code>## [1] &quot;Number of duplicated IDs in `employees` data frame: 1&quot;</code></pre>
+<pre class="r"><code>sprintf(&quot;Number of duplicated IDs in `employees` data frame: %d&quot;, check_duplicates(employees, eid))</code></pre>
+<pre><code>## [1] &quot;Number of duplicated IDs in `employees` data frame: 0&quot;</code></pre>
+<pre class="r"><code>sprintf(&quot;Number of duplicated IDs in `messages` data frame: %d&quot;, check_duplicates(messages, mid))</code></pre>
+<pre><code>## [1] &quot;Number of duplicated IDs in `messages` data frame: 0&quot;</code></pre>
+<pre class="r"><code>sprintf(&quot;Number of duplicated IDs in `recipients` data frame: %d&quot;, check_duplicates(recipients, rid))</code></pre>
+<pre><code>## [1] &quot;Number of duplicated IDs in `recipients` data frame: 0&quot;</code></pre>
+<pre class="r"><code>sprintf(&quot;Number of duplicated IDs in `references` data frame: %d&quot;, check_duplicates(references, rfid))</code></pre>
+<pre><code>## [1] &quot;Number of duplicated IDs in `references` data frame: 0&quot;</code></pre>
+</div>
+<div id="data-insights" class="section level3">
+<h3>Data insights</h3>
+<p>When reviewing th data, the 4 data frames (employees, messages,
+recipients and references), this report will aim to answer the the
+following questions:</p>
+<div id="verjtnvg" class="section level4">
+<h4>verjtnvg</h4>
+</div>
+<div id="estkbgreht" class="section level4">
+<h4>estkbgreht</h4>
+</div>
 </div>
 </div>
 

@@ -42,7 +42,18 @@ print(c)
 colnames(messages)
 colnames(references)
 colnames(recipients)
+colnames(employees)
 
 head(recipients)
 
 recipients$rtype %>% unique() 
+
+employees %>% summarise(n_distinct(status))
+employees$status %>% unique() 
+typeof(messages$date)
+head(messages$date)
+describe(messages)
+
+head(references$reference)[1]
+
+employees$status %>% unique()
