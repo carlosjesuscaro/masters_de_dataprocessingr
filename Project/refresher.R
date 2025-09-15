@@ -88,3 +88,41 @@ length(messages$date)
 
 month(messages$date[1])
 format(messages$date[1], "%Y-%m")
+
+
+colnames(messages)
+colnames(employees)
+colnames(recipients)
+
+messages$sender[1:5]
+
+messages[1, c("mid", "message_id")]
+head(messages$message_id)
+
+employee_lookup <- employees %>%
+  pivot_longer(
+    cols = starts_with("Email"), 
+    names_to = "email_type",     
+    values_to = "email_address"
+  ) %>%
+  select(eid, email_address) %>%
+  drop_na()
+
+length(employee_lookup)
+head(employee_lookup)
+
+recipients$rvalue[1]
+
+
+qq <- messages %>%
+  left_join(employee_lookup, by = c('sender' = 'email_address')) %>%
+
+colnames(qq)
+
+colnames(messages)
+
+messages %>%
+  left_join(employee_lookup, by = c("sender" = "email_address")) %>%
+    rename('sender_id' = eid, 'sender_status' = status)
+
+colnames(messages)

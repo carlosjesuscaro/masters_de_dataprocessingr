@@ -91,6 +91,33 @@ messages <- messages %>%
   )
 ```
 
+Joining the tables messages, employees and recipients as it will facilitate further analysis
+```{r}
+# 1. Since each employee can have many email address, let's create a look up table
+employee_lookup <- employees %>%
+  pivot_longer(
+    cols = starts_with("Email"), 
+    names_to = "email_type",     
+    values_to = "email_address"
+  ) %>%
+  select(eid, email_address, status) %>%
+  drop_na()
+
+# 2. Adding the employee ID to the messages data frame
+messages <- messages %>%
+  left_join(employee_lookup, by = c("sender" = "email_address")) %>%
+  rename('sender_id' = eid, 'sender_status' = status)
+
+
+# 3. Adding the employee ID to the recipient data frame
+recipients <- recipients %>%
+  left_join(employee_lookup, by = c("rvalue" = "email_address")) %>%
+  rename('recipient_id' = eid, 'recipient_status' = status)
+
+# 4. Joining messages and recipients data frames
+complete <- inner_join(messages, recipients, by='mid')
+```
+
 ### Data insights
 
 When reviewing th data, the 3 data frames (employees, messages and recipients), this report will aim to answer the the following questions:
@@ -123,6 +150,7 @@ ggplot(data = count_2001, aes(x = year_month, y = NumMessages)) +
 It becomes evident that the months of October and November 2001 had a significant number of emails than any other month in the same year.
 
 #### How is the volume distribution among the different employee's role?
+
 
 #### Did the patterns of message type (TO, CC, BCC) changed over the date range of interest?
 
