@@ -74,11 +74,25 @@ sprintf("Number of duplicated IDs in `messages` data frame: %d", check_duplicate
 sprintf("Number of duplicated IDs in `recipients` data frame: %d", check_duplicates(recipients, rid))
 ```
 
+Keeping the data only between Jan 1st, 1999 and December 31st, 2022
+```{r}
+messages <- messages %>%
+  filter(date >= as.Date('1999-01-01') & date <= as.Date('2002-12-31'))
+
+sprintf("Number of messages between these years: %d", length(messages$date))
+```
+
 ### Data insights
 
 When reviewing th data, the 3 data frames (employees, messages and recipients), this report will aim to answer the the following questions:
 
 #### What is the difference in volume in messages in between the dates of October 31, 2001 and December 2, 2001 and the overall volume?
+
+```{r}
+#messages$date %>% max()
+head(messages$date)
+
+```
 
 #### How is the volume distribution among the different employee's role?
 

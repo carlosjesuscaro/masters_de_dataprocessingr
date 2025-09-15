@@ -79,3 +79,7 @@ min(aa$date)
 ggplot(aa, aes(x=year))
 
 length(messages$date)
+
+messages %>%
+  filter(date >= as.Date("2000-01-01") & date <= as.Date('2002-12-31')) %>%
+  pull(date) %>% min()
