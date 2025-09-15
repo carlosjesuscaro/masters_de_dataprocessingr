@@ -57,3 +57,25 @@ describe(messages)
 head(references$reference)[1]
 
 employees$status %>% unique()
+
+aa <- messages %>%
+  mutate (
+    tmp_date = as_date(date, origin = "1970-01-01"),
+    year = year(tmp_date),
+    date
+  )
+head(aa)
+
+aa %>%
+  group_by(year) %>%
+  count()
+
+max(aa$year)
+min(aa$year)
+max(aa$date)
+min(aa$date)
+
+
+ggplot(aa, aes(x=year))
+
+length(messages$date)

@@ -25,6 +25,7 @@ The goal of this project is to perform a comprehensive data analysis of the data
 
 ```{r}
 library(tidyverse)
+library(wordcloud)
 load('Enron.Rdata')
 ```
 
@@ -75,14 +76,13 @@ sprintf("Number of duplicated IDs in `recipients` data frame: %d", check_duplica
 
 ### Data insights
 
-When reviewing th data, the 4 data frames (employees, messages, recipients and references), this report will aim to answer the the following questions:
+When reviewing th data, the 3 data frames (employees, messages and recipients), this report will aim to answer the the following questions:
 
 #### What is the difference in volume in messages in between the dates of October 31, 2001 and December 2, 2001 and the overall volume?
 
 #### How is the volume distribution among the different employee's role?
 
 #### Did the patterns of message type (TO, CC, BCC) changed over the date range of interest?
-
 
 #### How can you show the difference in tone form the subject lines between the date range of interest?
 
