@@ -126,3 +126,10 @@ messages %>%
     rename('sender_id' = eid, 'sender_status' = status)
 
 colnames(messages)
+
+complete$year %>% unique()
+
+complete %>%
+  filter(year == 2001) %>%
+  group_by(sender_status) %>%
+  count()
