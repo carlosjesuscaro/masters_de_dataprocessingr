@@ -79,11 +79,14 @@ employees$status %>% unique()
 ```
 It is clear that there are 2 values for NA, let's consolidate:
 ```{r}
-employees %>%
+employees <- employees %>%
   mutate(status = as.character(status)) %>%
   mutate(status = na_if(status, "N/A")) %>%
-  mutate(status = replace_na(status, "NA")) %>%
-  select(status) %>% unique()
+  mutate(status = replace_na(status, "NA"))
+
+employees %>%
+  select(status) %>%
+  unique()
 ```
 
 Keeping the data only between Jan 1st, 1999 and December 31st, 2022
@@ -134,6 +137,18 @@ complete <- inner_join(messages, recipients, by='mid')
 
 When reviewing th data, the 3 data frames (employees, messages and recipients), this report will aim to answer the the following questions:
 
+### What is the proportion breakdown of eemployees based on status?
+```{r}
+total_employees <- length(employees$eid)
+
+employees %>%
+  group_by(status) %>%
+  count(sort=TRUE) %>%
+  rename(NumEmployees = n) %>%
+  mutate(Proportion = round((NumEmployees / total_employees * 100), 2))
+```
+
+
 #### What is the difference in volume in messages in between the dates of October 31, 2001 and December 2, 2001 and the overall volume?
 
 ```{r}
@@ -162,13 +177,54 @@ ggplot(data = count_2001, aes(x = year_month, y = NumMessages)) +
 It becomes evident that the months of October and November 2001 had a significant number of emails than any other month in the same year.
 
 #### How is the volume distribution among the different employee's role?
+
+
 ```{r}
-complete %>%
-  group_by(year, sender_status) %>%
-  count()
+complete_2001 <- complete %>%
+  filter(year == 2001 & sender_status != "NA" & recipient_status != 'NA')
+
+ggplot(data = complete_2001, aes(x = year_month, fill = sender_status)) +
+  geom_bar() +
+  labs(
+    title = "Count of sender emails per Status and Year-Month",
+    x = "Year and Month",
+    y = "Count"
+  ) +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
 ```
+```{r}
+ggplot(data = complete_2001, aes(x = year_month, fill = recipient_status)) +
+  geom_bar() +
+  labs(
+    title = "Count of recipient emails per status and Year-Month",
+    x = "Year and Month",
+    y = "Count"
+  ) +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+```
+One of the most notorious findings besides the evident volume increase between October and November is the 
 
 #### Did the patterns of message type (TO, CC, BCC) changed over the date range of interest?
+```{r}
+ggplot(data = complete_2001, aes(x = year_month, fill = rtype)) +
+  geom_bar() +
+  labs(
+    title = "Count of recipient emails per status and Year-Month",
+    x = "Year and Month",
+    y = "Count"
+  ) +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+```
+```{r}
+complete_2001 %>%
+  group_by(year_month, rtype) %>%
+  count() %>%
+  rename(NumMessages = n) %>%
+  pivot_wider(id_cols = year_month, names_from = rtype, values_from = NumMessages)
+```
 
-#### How can you show the difference in tone form the subject lines between the date range of interest?
+The proportion of email types (BCC, CC, TO) remained consistent through the months of October and November compared to the rest of the year.
 
