@@ -73,6 +73,18 @@ sprintf("Number of duplicated IDs in `messages` data frame: %d", check_duplicate
 
 sprintf("Number of duplicated IDs in `recipients` data frame: %d", check_duplicates(recipients, rid))
 ```
+Inspecting the field Status in Employees
+```{r}
+employees$status %>% unique()
+```
+It is clear that there are 2 values for NA, let's consolidate:
+```{r}
+employees %>%
+  mutate(status = as.character(status)) %>%
+  mutate(status = na_if(status, "N/A")) %>%
+  mutate(status = replace_na(status, "NA")) %>%
+  select(status) %>% unique()
+```
 
 Keeping the data only between Jan 1st, 1999 and December 31st, 2022
 ```{r}
@@ -150,7 +162,11 @@ ggplot(data = count_2001, aes(x = year_month, y = NumMessages)) +
 It becomes evident that the months of October and November 2001 had a significant number of emails than any other month in the same year.
 
 #### How is the volume distribution among the different employee's role?
-
+```{r}
+complete %>%
+  group_by(year, sender_status) %>%
+  count()
+```
 
 #### Did the patterns of message type (TO, CC, BCC) changed over the date range of interest?
 

@@ -133,3 +133,18 @@ complete %>%
   filter(year == 2001) %>%
   group_by(sender_status) %>%
   count()
+
+complete %>%
+  group_by(year, sender_status) %>%
+  count()
+
+employees %>% select(status) %>% unique()
+class(employees$status)
+
+employees %>%
+  mutate(status = as.character(status)) %>%
+  mutate(status = na_if(status, "N/A")) %>%
+  mutate(status = replace_na(status, "NA")) %>%
+  select(status) %>% unique()
+
+colnames(recipients)
