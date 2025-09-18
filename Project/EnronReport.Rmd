@@ -222,6 +222,23 @@ ggplot(data = complete_2001, aes(x = year_month, fill = recipient_status)) +
   theme_minimal() +
   theme(axis.text.x = element_text(angle = 45, hjust = 1))
 ```
+```{r}
+recipient_summary_proportion  <- complete_2001 %>%
+                            group_by(year_month, recipient_status) %>%
+                            summarise(count = n(), .groups = 'drop') %>%
+                            group_by(year_month) %>%
+                            mutate(total_month = sum(count)) %>%
+                            mutate(proportion = 100 * count / total_month) %>%
+                            mutate(across(where(is.numeric), ~round(., 2))) %>%
+                            select(-count, -total_month) %>%
+                            pivot_wider(
+                              names_from = year_month,
+                              values_from = proportion
+                            )
+
+knitr::kable(recipient`_summary_proportion)
+```
+
 One of the most notorious findings besides the evident volume increase between October and November is the 
 
 #### Did the patterns of message type (TO, CC, BCC) changed over the date range of interest?
