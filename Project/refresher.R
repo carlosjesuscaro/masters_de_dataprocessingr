@@ -148,3 +148,12 @@ employees %>%
   select(status) %>% unique()
 
 colnames(recipients)
+
+head(complete)
+
+messages %>%
+  filter(is.na(sender))
+
+employees %>%
+  filter(is.na(status)) %>%
+  count()

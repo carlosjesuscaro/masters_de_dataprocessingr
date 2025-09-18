@@ -25,7 +25,6 @@ The goal of this project is to perform a comprehensive data analysis of the data
 
 ```{r}
 library(tidyverse)
-library(wordcloud)
 load('Enron.Rdata')
 ```
 
@@ -137,7 +136,7 @@ complete <- inner_join(messages, recipients, by='mid')
 
 When reviewing th data, the 3 data frames (employees, messages and recipients), this report will aim to answer the the following questions:
 
-### What is the proportion breakdown of eemployees based on status?
+#### What is the proportion breakdown of employees based on status?
 ```{r}
 total_employees <- length(employees$eid)
 
@@ -147,7 +146,6 @@ employees %>%
   rename(NumEmployees = n) %>%
   mutate(Proportion = round((NumEmployees / total_employees * 100), 2))
 ```
-
 
 #### What is the difference in volume in messages in between the dates of October 31, 2001 and December 2, 2001 and the overall volume?
 
@@ -174,7 +172,7 @@ ggplot(data = count_2001, aes(x = year_month, y = NumMessages)) +
   )
 ```
 
-It becomes evident that the months of October and November 2001 had a significant number of emails than any other month in the same year.
+It becomes clear that the months of October and November 2001 had a significant number of emails than any other month in the same year.
 
 #### How is the volume distribution among the different employee's role?
 
@@ -209,7 +207,7 @@ sender_summary_proportion  <- complete_2001 %>%
 
 knitr::kable(sender_summary_proportion)
 ```
-
+By visualizing the data as a pivot table from the sender's status perspective, the highest change in proportion  was from "Employees" sending more emails from September to October from 31.86% to 42.56%.
 
 ```{r}
 ggplot(data = complete_2001, aes(x = year_month, fill = recipient_status)) +
@@ -236,10 +234,10 @@ recipient_summary_proportion  <- complete_2001 %>%
                               values_from = proportion
                             )
 
-knitr::kable(recipient`_summary_proportion)
+knitr::kable(recipient_summary_proportion)
 ```
 
-One of the most notorious findings besides the evident volume increase between October and November is the 
+Likewise, by having the pivot table of recipients from the employee_status perspective, there were not substantial changes in the proportions between September to October. 
 
 #### Did the patterns of message type (TO, CC, BCC) changed over the date range of interest?
 ```{r}
