@@ -119,11 +119,11 @@ ui <- fluidPage(
     ),
   
     mainPanel(
-      h3("Most active employees"), 
+      h3("Most active employees total"), 
       tableOutput(outputId = "output_employee"),
       br(),
-      h3("Most active roles"), 
-      tableOutput(outputId = "output_role"),
+      h3("Most active employees by role"), 
+      tableOutput(outputId = "output_role")
     )
   )
 )
@@ -166,7 +166,7 @@ server <- function(input, output) {
       
       complete %>%
         filter(year_month == selected_ym) %>%
-        filter(.data[[status_column]] == input$select_role)
+        filter(.data[[status_column]] == input$select_role) %>%
         count(.data[[input$select_sr]], sort = TRUE) %>%
         rename('Number Of Messages' = n) %>%
         slice_head(n = input$top_id)

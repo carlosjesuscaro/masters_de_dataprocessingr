@@ -195,3 +195,17 @@ complete %>%
   filter(str_detect(subject, "lawsuit")) %>%
   select(date, sender, rtype, rvalue, subject) %>%
   slice_head(n = 10)
+
+complete %>%
+  filter(year_month == selected_ym) %>%
+  filter(.data[[status_column]] == input$select_role)
+count(.data[[input$select_sr]], sort = TRUE) %>%
+  rename('Number Of Messages' = n) %>%
+  slice_head(n = input$top_id)
+
+complete %>%
+  filter(year_month == selected_ym) %>%
+  filter(.data[[status_column]] == input$select_role)
+  count(.data[[input$select_sr]], sort = TRUE) %>%
+  rename('Number Of Messages' = n) %>%
+  slice_head(n = input$top_id)
