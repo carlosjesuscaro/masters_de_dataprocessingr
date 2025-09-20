@@ -172,3 +172,15 @@ complete %>%
   filter(year == 2001) %>%
   count(sender, sort=TRUE) %>%
   slice_head(n=3)
+
+
+colnames(messages)
+colnames(complete)
+
+
+library(stringr)
+
+complete %>% 
+  filter(str_detect(subject, "lawsuit")) %>%
+  select(date, sender, rtype, rvalue, subject) %>%
+  slice_head(n = 10)

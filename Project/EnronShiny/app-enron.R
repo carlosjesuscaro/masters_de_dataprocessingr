@@ -28,23 +28,77 @@ ui <- fluidPage(
     "))
   ),
 
-    # Application title
-    titlePanel("Enron Data Project"),
+  # Application title
+  titlePanel("Enron Data Project"),
         
-    sidebarLayout(
-      h3("Data input"),
-      numericInput(inputId = "year",
-                   label = "Enter a year",
-                   value = 2001,
-                   min = 1999,
-                   max = 2002)
-    ),
-        
+  sidebarLayout(
+    sidebarPanel(
     
+      # Sidebar title
+      h3("Data input"),
+        
+      # Year
+      numericInput(
+        inputId = "year_id",
+        label = "Enter a year",
+        value = 2001,
+        min = 1999,
+        max = 2002
+      ),
+        
+      # Sender or Receiver
+      selectizeInput( 
+        "select_sr", 
+        "Select options below:", 
+        choices = c(
+          "Please make a selection" = "",
+          "Sender" = "sender_id", 
+          "Recipient" = "recipient_id"),
+        options = list(placeholder = 'Please make a selection')
+      ),
+      
+      # Employee role
+      selectizeInput( 
+        "select_role", 
+        "Select options below:", 
+        choices = c(
+          "Please make a selection" = "",
+          "Employee" = "employee_id", 
+          "CEO" = "ceo_id",
+          "Director" = "director_id",
+          "Trader" = "trader_id",
+          "President" = "president_id",
+          "Vice President" = "vp_id",
+          "Manager" = "manager_id",
+          "Managing Director" = "man_director_id",
+          "In House Lawyer" = "lawyer_id"
+          ),
+        options = list(placeholder = 'Please make a selection')
+      ),
+      
+      # Top
+      numericInput(
+        inputId = "top_id",
+        label = "Show Top",
+        value = 3,
+        min = 1,
+        max = 5
+      ),
+      
+      # Keyword
+      textInput(
+        inputId = "keyword_id",
+        label = "Enter a word to search in the subject line",
+        placeholder = "fraud"
+      )
+      
+    ),
+  
     mainPanel(
-          
-        )
+            
     )
+  )
+)
 
 # Define server logic required to draw a histogram
 server <- function(input, output) {
@@ -53,3 +107,4 @@ server <- function(input, output) {
 
 # Run the application 
 shinyApp(ui = ui, server = server)
+
