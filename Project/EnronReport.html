@@ -492,7 +492,14 @@ recipients &lt;- recipients %&gt;%
   rename(&#39;recipient_id&#39; = eid, &#39;recipient_status&#39; = status)
 
 # 4. Joining messages and recipients data frames
-complete &lt;- inner_join(messages, recipients, by=&#39;mid&#39;)</code></pre>
+complete &lt;- inner_join(messages, recipients, by=&#39;mid&#39;)
+
+# 5. Renaming rvalue to recipient
+complete &lt;- complete %&gt;%
+              rename(recipient = rvalue)</code></pre>
+<p>Saving ‘complete’ and ‘employees’ data frames</p>
+<pre class="r"><code>saveRDS(complete, file = &quot;complete.rds&quot;)
+saveRDS(employees, file = &quot;employees.rds&quot;)</code></pre>
 </div>
 <div id="data-insights" class="section level3">
 <h3>Data insights</h3>
