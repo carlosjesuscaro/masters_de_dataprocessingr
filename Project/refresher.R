@@ -148,7 +148,7 @@ employees %>%
   select(status) %>% unique()
 
 colnames(recipients)
-
+colnames(complete)
 head(complete)
 
 messages %>%
@@ -157,3 +157,18 @@ messages %>%
 employees %>%
   filter(is.na(status)) %>%
   count()
+
+################################################################################
+
+# 1. Filtering top senders / receivers. Input: sender, receiver, year and top_x
+# 2. Filtering by role: Input role, sender, receiver, year
+# 3. an analysis of the temporal dynamic of the messages, in relationship with the public events
+# (see on the web information about the Enron scandal),
+# 4. Quantifying number of emails containing key words. Input: key_word
+
+
+# 1
+complete %>%
+  filter(year == 2001) %>%
+  count(sender, sort=TRUE) %>%
+  slice_head(n=3)
