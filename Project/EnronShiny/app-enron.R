@@ -193,6 +193,7 @@ server <- function(input, output) {
       complete %>%
         filter(year_month == selected_ym) %>%
         filter(str_detect(subject, regex(input$keyword_id, ignore_case = TRUE))) %>%
+        mutate(date = format(as.Date(date, origin = "1970-01-01"), "%Y-%m-%d")) %>%
         select(date, sender, recipient, subject) %>%
         slice_head(n = input$top_id)
     })
