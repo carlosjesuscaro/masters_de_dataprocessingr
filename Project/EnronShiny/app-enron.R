@@ -87,15 +87,15 @@ ui <- fluidPage(
         "Select options below:", 
         choices = c(
           "Please make a selection" = "",
-          "Employee" = "employee_id", 
-          "CEO" = "ceo_id",
-          "Director" = "director_id",
-          "Trader" = "trader_id",
-          "President" = "president_id",
-          "Vice President" = "vp_id",
-          "Manager" = "manager_id",
-          "Managing Director" = "man_director_id",
-          "In House Lawyer" = "lawyer_id"
+          "Employee" = "Employee", 
+          "CEO" = "CEO",
+          "Director" = "Director",
+          "Trader" = "Trader",
+          "President" = "President",
+          "Vice President" = "Vice President",
+          "Manager" = "Manager",
+          "Managing Director" = "Managing Director",
+          "In House Lawyer" = "In House Lawyer"
           ),
         options = list(placeholder = 'Please make a selection')
       ),
@@ -120,7 +120,10 @@ ui <- fluidPage(
   
     mainPanel(
       h3("Most active employees"), 
-      tableOutput(outputId = "example_id")
+      tableOutput(outputId = "output_employee"),
+      br(),
+      h3("Most active roles"), 
+      tableOutput(outputId = "output_role"),
     )
   )
 )
@@ -135,7 +138,7 @@ server <- function(input, output) {
   })
 
     # Top users 
-    output$example_id <- renderTable({
+    output$output_employee <- renderTable({
       req(input$select_sr)
       
       selected_ym <- year_month_selection()
@@ -148,6 +151,27 @@ server <- function(input, output) {
     })
     
     # Top employee roles
+    output$output_role <- renderTable({
+      req(input$select_role, input$select_sr)
+      
+      if (input$select_sr == "sender") {
+        status_column <- "sender_status"
+        # count_column <- "sender"
+      } else {
+        status_column <- "recipient_status"
+        # count_column <- "recipient"
+      }
+      
+      selected_ym <- year_month_selection()
+      
+      complete %>%
+        filter(year_month == selected_ym) %>%
+        filter(.data[[status_column]] == input$select_role)
+        count(.data[[input$select_sr]], sort = TRUE) %>%
+        rename('Number Of Messages' = n) %>%
+        slice_head(n = input$top_id)
+    })
+    
 }
 
 # Run the application 

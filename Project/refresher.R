@@ -174,8 +174,19 @@ complete %>%
   slice_head(n=3)
 
 
+complete %>%
+  filter(year == 2001) %>%
+  filter(sender_status == 'CEO') %>%
+  count(sender, sort=TRUE) %>%
+  slice_head(n=3)
+
+complete %>%
+  filter(sender == 'kenneth.lay@enron.com')
+
 colnames(messages)
 colnames(complete)
+
+complete$sender_status %>% unique()
 
 
 library(stringr)
