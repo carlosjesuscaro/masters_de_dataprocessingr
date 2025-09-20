@@ -130,6 +130,10 @@ recipients <- recipients %>%
 
 # 4. Joining messages and recipients data frames
 complete <- inner_join(messages, recipients, by='mid')
+
+# 5. Renaming rtype to recipient
+complete <- complete %>%
+              rename(recipient = rvalue)
 ```
 
 ### Data insights

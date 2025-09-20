@@ -170,7 +170,7 @@ employees %>%
 # 1
 complete %>%
   filter(year == 2001) %>%
-  count(sender, sort=TRUE) %>%
+  count(rvalue, sort=TRUE) %>%
   slice_head(n=3)
 
 
