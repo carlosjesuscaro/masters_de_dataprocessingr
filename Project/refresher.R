@@ -215,3 +215,11 @@ complete %>%
   filter(str_detect(subject, "lawsuit")) %>%
   select(date, sender, rtype, rvalue, subject) %>%
   slice_head(n = 10)
+
+  
+colnames(employees)
+
+head(employees)
+
+employees %>%
+  filter(lastName == 'Sanders')

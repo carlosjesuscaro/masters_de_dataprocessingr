@@ -1,5 +1,11 @@
+# Loading the libraries
 library(shiny)
 library(dplyr)
+library(stringr)
+
+# Loading the data
+complete <- readRDS('complete.rds')
+employees <- readRDS('employees.rds')
 
 # Define UI for application that draws a histogram
 ui <- fluidPage(
@@ -105,6 +111,13 @@ ui <- fluidPage(
         inputId = "keyword_id",
         label = "Enter a word to search in the subject line",
         placeholder = "fraud"
+      ),
+      
+      # Employee lookup
+      textInput(
+        inputId = "lookup_id",
+        label = "Enter an email address to search for more information",
+        placeholder = ""
       )
       
     ),
@@ -118,7 +131,11 @@ ui <- fluidPage(
       br(),
       h3("Emails including the keyword in the subject line"),
       h5("Example: fraud in October 2001"),
-      tableOutput(outputId = "output_keyword")
+      tableOutput(outputId = "output_keyword"),
+      br(),
+      h3("Employee lookup by email"),
+      h5("Example: richard.sanders@enron.com"),
+      tableOutput(outputId = "output_lookup")
     )
   )
 )
@@ -175,11 +192,24 @@ server <- function(input, output) {
       
       complete %>%
         filter(year_month == selected_ym) %>%
-        filter(str_detect(subject, input$keyword_id)) %>%
+        filter(str_detect(subject, regex(input$keyword_id, ignore_case = TRUE))) %>%
         select(date, sender, recipient, subject) %>%
         slice_head(n = input$top_id)
     })
     
+    # Employee lookup
+    output$output_lookup <- renderTable({
+      req(input$lookup_id)
+      
+      employees %>%
+        filter(
+          if_any(
+            c(Email_id, Email2, Email3, EMail4), 
+            ~ !is.na(.x) & tolower(.x) == tolower(input$lookup_id)
+          )
+        ) %>%
+        select(firstName, lastName, status)
+    })
 }
 
 # Run the application 

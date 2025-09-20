@@ -131,9 +131,15 @@ recipients <- recipients %>%
 # 4. Joining messages and recipients data frames
 complete <- inner_join(messages, recipients, by='mid')
 
-# 5. Renaming rtype to recipient
+# 5. Renaming rvalue to recipient
 complete <- complete %>%
               rename(recipient = rvalue)
+```
+
+Saving 'complete' and 'employees' data frames
+```{r}
+saveRDS(complete, file = "complete.rds")
+saveRDS(employees, file = "employees.rds")
 ```
 
 ### Data insights
