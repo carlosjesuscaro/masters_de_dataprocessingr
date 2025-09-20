@@ -1,12 +1,3 @@
-#
-# This is a Shiny web application. You can run the application by clicking
-# the 'Run App' button above.
-#
-# Find out more about building applications with Shiny here:
-#
-#    https://shiny.posit.co/
-#
-
 library(shiny)
 library(dplyr)
 
@@ -16,7 +7,7 @@ ui <- fluidPage(
     # Adding basic CSS
   tags$head(
     tags$style(HTML("
-    h3, .shiny-input-container {
+    h3, h5, .shiny-input-container {
     margin-bottom: 25px; 
     padding-left: 20px;
     }
@@ -123,7 +114,11 @@ ui <- fluidPage(
       tableOutput(outputId = "output_employee"),
       br(),
       h3("Most active employees by role"), 
-      tableOutput(outputId = "output_role")
+      tableOutput(outputId = "output_role"),
+      br(),
+      h3("Emails including the keyword in the subject line"),
+      h5("Example: fraud in October 2001"),
+      tableOutput(outputId = "output_keyword")
     )
   )
 )
@@ -169,6 +164,19 @@ server <- function(input, output) {
         filter(.data[[status_column]] == input$select_role) %>%
         count(.data[[input$select_sr]], sort = TRUE) %>%
         rename('Number Of Messages' = n) %>%
+        slice_head(n = input$top_id)
+    })
+    
+    # Emails by keyword
+    output$output_keyword <- renderTable({
+      req(input$keyword_id)
+      
+      selected_ym <- year_month_selection()
+      
+      complete %>%
+        filter(year_month == selected_ym) %>%
+        filter(str_detect(subject, input$keyword_id)) %>%
+        select(date, sender, recipient, subject) %>%
         slice_head(n = input$top_id)
     })
     
